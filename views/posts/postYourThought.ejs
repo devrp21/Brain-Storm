@@ -1,0 +1,26 @@
+<%- include('../includes/head.ejs')%>
+<title><%=pageTitle%></title>
+</head>
+<body>
+  <div class="login-page">
+    <div class="form">
+      <div class="login">
+        <div class="login-header">
+          <h3>Write Thought</h3>
+          <%if (errorMessage) {%>
+            <div class="user-message user-message--error">
+                <%=errorMessage%>
+            </div>
+            <% } %>
+        </div>
+      </div>
+      
+      <form class="login-form" method="post" action="/feed/postThought">
+        <input type="text" placeholder="title" name="title" />
+        <textarea type="text" cols="5" rows="5" placeholder="thought" name="thought" ></textarea>
+        <button>Post</button>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../includes/end.ejs')%>

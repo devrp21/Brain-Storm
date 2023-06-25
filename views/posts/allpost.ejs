@@ -1,0 +1,20 @@
+<%- include('../includes/head.ejs')%>
+    
+        <%- include('../includes/navbar.ejs')%>
+        <%if(isAuth){%>
+        <div class="login-page">
+<a href="/feed/postThought">Write thought</a>
+            <% thoughts.forEach(function(th) {%>
+                <div class="form">
+                    <li><b>Title:</b> <%=th.title%>
+                    </li>
+                    <li><b>Thought:</b> <%=th.thought%>
+                    </li>
+                    <li><b>Creator:</b> <%=th.creator.name%>
+                    </li>
+                </div>
+                <%});%>
+        </div>
+        <%}%>
+
+        <%- include('../includes/end.ejs')%>

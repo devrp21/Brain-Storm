@@ -1,34 +1,55 @@
 import express from "express";
-import { body } from 'express-validator'
-import { createUser, loginUser } from "../controller/user.js";
+import { body, check } from 'express-validator'
+import { createUser, loginUser, loginUserPost, logoutUser, signupUser } from "../controller/user.js";
 import User from "../model/user.js";
 
 const router = express.Router();
 
-router.post('/signup',[
+router.get('/signup', signupUser);
+
+router.post('/signup', [
     body('email')
         .isEmail()
-        .withMessage('Please Enter a valid email.')
-        .custom(async (value, { req }) => {
-            return User.findOne({ email: value }).then(userDoc => {
-                if (userDoc) {
-                    return Promise.reject('Email Address already exists!');
-                }
-            });
-        })
-        .normalizeEmail(),
+        .withMessage('Please enter a valid email.')
+        .custom(async (value,{req})=>{
+            const userDoc = await User.findOne({ email: value });
+            if (userDoc) {
+                return Promise.reject('Email exists already, pick up diffrent one.');
+            }
+        }),
 
-    body('password')
+    body('password', 'Password should be more than 6 character long')
+        .isAlphanumeric()
         .trim()
-        .isLength({ min: 5 }),
+        .isLength({ min: 6 }),
 
-    body('name')
+    body('username')
         .trim()
         .not()
         .isEmpty()
+        .isLength({ min: 1 })
+        .custom(async (value,{req})=>{
+            const userDoc = await User.findOne({name:value});
+            if (userDoc) {
+                return Promise.reject('Username exists choose different one.');
+            }
+        })
 ], createUser);
 
-router.post('/login', loginUser);
+router.get('/login', [
+    body('email')
+        .isEmail()
+        .withMessage('Please enter valid email.')
+        .normalizeEmail(),
+    body('passowrd', 'Password has to be valid')
+        .isLength({ min: 6 })
+        .isAlphanumeric()
+        .trim()
+], loginUser);
+
+router.post('/login', loginUserPost);
+
+router.post('/logout',logoutUser);
 
 
 export default router;
