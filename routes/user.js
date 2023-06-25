@@ -1,11 +1,13 @@
 import express from "express";
 import { body } from 'express-validator'
-import { createUser, loginUser } from "../controller/user.js";
+import { createUser, loginUser, loginUserPost, signupUser } from "../controller/user.js";
 import User from "../model/user.js";
 
 const router = express.Router();
 
-router.post('/signup',[
+router.get('/signup', signupUser);
+
+router.post('/signup', [
     body('email')
         .isEmail()
         .withMessage('Please Enter a valid email.')
@@ -22,13 +24,16 @@ router.post('/signup',[
         .trim()
         .isLength({ min: 5 }),
 
-    body('name')
+    body('username')
         .trim()
         .not()
         .isEmpty()
+        .isLength({min:1})
 ], createUser);
 
-router.post('/login', loginUser);
+router.get('/login', loginUser);
+
+router.post('/login', loginUserPost);
 
 
 export default router;

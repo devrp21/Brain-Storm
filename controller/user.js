@@ -4,8 +4,14 @@ import jwt from "jsonwebtoken";
 import User from "../model/user.js";
 import Post from "../model/post.js";
 
+
+export const signupUser=(req,res,next)=>{
+    res.render("auth/signup");
+}
+
 export const createUser = async (req, res, next) => {
     const errors = validationResult(req);
+    console.log('hi',errors.errors);
     if (!errors.isEmpty()) {
         const error = new Error('Validation Failed.');
         error.statusCode = 422;
@@ -13,7 +19,8 @@ export const createUser = async (req, res, next) => {
         throw error;
     }
 
-    const username = req.body.name;
+    const username = req.body.username;
+    // console.log(username);
     const email = req.body.email;
     const password = req.body.password;
 
@@ -35,7 +42,7 @@ export const createUser = async (req, res, next) => {
                 name: username
             });
             await user.save();
-            res.status(201).json({ message: 'User Created!', useerId: user._id })
+            res.status(201).send('success');
         } catch (err) {
             if (!err.statusCode) {
                 err.statusCode = 500;
@@ -45,7 +52,11 @@ export const createUser = async (req, res, next) => {
     }
 };
 
-export const loginUser = async (req, res, next) => {
+export const loginUser=(req,res,next)=>{
+    res.render("auth/login");
+}
+
+export const loginUserPost = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     let loadedUser;
@@ -53,7 +64,7 @@ export const loginUser = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: email });
         if (!user) {
-            const error = new Error('A suer with this email could not be found.');
+            const error = new Error('A sure with this email could not be found.');
             error.statusCode = 401;
             throw error;
         }
@@ -68,6 +79,8 @@ export const loginUser = async (req, res, next) => {
             throw error;
         }
 
+        // req.isAuth = true;
+
         const token = jwt.sign({
             email: loadedUser.email,
             userId: loadedUser._id.toString()
@@ -75,7 +88,7 @@ export const loginUser = async (req, res, next) => {
             'secret',
             { expiresIn: '1h' }
         );
-        res.status(200).json({ token: token, userId: loadedUser._id.toString() })
+        res.status(200).send('success');
     }
     catch (err) {
         if (!err.statusCode) {

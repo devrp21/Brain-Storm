@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 
-export const isAuth=(req,res,next)=>{
+export const isAuth = (req, res, next) => {
     const authHeader = req.get('Authorization');
+    console.log(authHeader);
     if (!authHeader) {
         const error = new Error('Not authenticated');
         error.statusCode = 401;

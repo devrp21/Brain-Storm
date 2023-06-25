@@ -1,0 +1,20 @@
+<%- include('../includes/head.ejs')%>
+
+  <div class="login-page">
+    <div class="form">
+      <div class="login">
+        <div class="login-header">
+          <h3>LOGIN</h3>
+          <p>Please enter your credentials to login.</p>
+        </div>
+      </div>
+      <form class="login-form" method="post" action="/auth/login">
+        <input type="text" placeholder="email" name="email"/>
+        <input type="password" placeholder="password" name="password" />
+        <button>login</button>
+        <p class="message">Not registered? <a href="/auth/signup">Create an account</a></p>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../includes/end.ejs')%>
