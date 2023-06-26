@@ -26,7 +26,11 @@ margin-bottom: 26px;
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 }
+<<<<<<< HEAD
 .form input ,textarea{
+=======
+.form input {
+>>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
   font-family: "Roboto", sans-serif;
   outline: 0;
   background: #f2f2f2;
@@ -36,11 +40,14 @@ margin-bottom: 26px;
   padding: 15px;
   box-sizing: border-box;
   font-size: 14px;
+<<<<<<< HEAD
   resize: none;
 }
 
 li{
   list-style: none;
+=======
+>>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
 }
 .form button {
   font-family: "Roboto", sans-serif;
@@ -80,6 +87,7 @@ body {
   font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+<<<<<<< HEAD
 }
 
 .user-message{
@@ -95,4 +103,6 @@ body {
   border-color:red ;
   background: rgb(241, 118, 118);
   color: red;
+=======
+>>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
 }

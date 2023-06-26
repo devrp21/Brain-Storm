@@ -1,12 +1,16 @@
 <%- include('../includes/head.ejs')%>
 
+<<<<<<< HEAD
 <%- include('../includes/navbar.ejs')%>
+=======
+>>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
   <div class="login-page">
     <div class="form">
       <div class="login">
         <div class="login-header">
           <h3>Sign Up</h3>
           <p>Please enter your credentials to signup.</p>
+<<<<<<< HEAD
           <%if (errorMessage){%>
           <div class="user-message user-message--error"><%=errorMessage%></div>
           <% } %>
@@ -16,6 +20,14 @@
         <input type="text" placeholder="email" name="email" value="<%=oldInput.email%>"/>
         <input type="text" placeholder="username" name="username" value="<%=oldInput.username%>"/>
         <input type="password" placeholder="password" name="password" value="<%=oldInput.password%>" />
+=======
+        </div>
+      </div>
+      <form class="login-form" method="post" action="/auth/signup">
+        <input type="text" placeholder="email" name="email"/>
+        <input type="text" placeholder="username" name="username"/>
+        <input type="password" placeholder="password" name="password" />
+>>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
         <button>Signup</button>
         <p class="message">Already registered? <a href="/auth/login">Login</a></p>
       </form>

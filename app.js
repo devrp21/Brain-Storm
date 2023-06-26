@@ -4,17 +4,22 @@ import bodyParser from 'body-parser';
 import feedRoutes from './routes/feed.js';
 import userRoutes from './routes/user.js';
 import path from 'path';
+<<<<<<< HEAD
 import session from 'express-session';
 import flash from 'connect-flash';
 import { fileURLToPath } from 'url';
 import User from './model/user.js';
 import { getHome } from './controller/feed.js';
+=======
+import {fileURLToPath} from 'url';
+>>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
 
 
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+<<<<<<< HEAD
 
 const publicPath = path.join(__dirname, "./public");
 const viewsPath = path.join(__dirname, "./views");
@@ -50,6 +55,20 @@ app.use(async (req, res, next) => {
         console.log(err);
     }
 });
+=======
+
+const publicPath = path.join(__dirname, "./public");
+const viewsPath = path.join(__dirname, "./views");
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.set("view engine", "ejs");
+app.set("views", viewsPath);
+
+app.use(express.static(publicPath));
+
+
+>>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
 
 app.use('/feed', feedRoutes);
 app.use('/auth', userRoutes);
