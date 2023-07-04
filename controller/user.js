@@ -17,7 +17,7 @@ export const signupUser = (req, res, next) => {
         pageTitle: 'Sign Up',
         errorMessage: message,
         oldInput: { email: "", password: "", username: "" },
-        isAuth:false
+        isAuth: false
     });
 }
 
@@ -45,7 +45,7 @@ export const createUser = async (req, res, next) => {
             },
             errorMessage: errors.array()[0].msg,
             validationErrors: errors.array(),
-            isAuth:false
+            isAuth: false
         });
     }
 
@@ -60,7 +60,7 @@ export const createUser = async (req, res, next) => {
         res.status(201).render("auth/login", {
             pageTitle: 'Login',
             errorMessage: message,
-            isAuth:false
+            isAuth: false
         });
     } catch (err) {
         if (!err.statusCode) {
@@ -82,7 +82,7 @@ export const loginUser = (req, res, next) => {
         pageTitle: 'Login',
         errorMessage: message,
         oldInput: { email: "", password: "" },
-        isAuth:false
+        isAuth: false
     });
 }
 
@@ -101,7 +101,7 @@ export const loginUserPost = async (req, res, next) => {
             },
             errorMessage: errors.array()[0].msg,
             validationErrors: errors.array(),
-            isAuth:false
+            isAuth: false
         });
     }
 
@@ -113,21 +113,21 @@ export const loginUserPost = async (req, res, next) => {
                 pageTitle: 'Login',
                 errorMessage: 'Invalid email or password.',
                 oldInput: { email: email, password: password },
-                isAuth:false
+                isAuth: false
             });
         }
 
         const isEqual = await bcrypt.compare(password, user.password);
-        
+
         if (!isEqual) {
             return res.status(422).render('auth/login', {
                 pageTitle: 'Login',
                 errorMessage: 'Invalid email or password.',
                 oldInput: { email: email, password: password },
-                isAuth:false
+                isAuth: false
             });
         }
-        
+
         loadedUser = user;
         // req.isAuth = true;
 
@@ -141,7 +141,7 @@ export const loginUserPost = async (req, res, next) => {
         // console.log(token);
         req.session.user = loadedUser;
         req.session.token = token;
-        req.session.isLoggedIn=true;
+        req.session.isLoggedIn = true;
         // res.status(200).send(req.session.user);
         res.redirect('/feed/thoughts');
     }
@@ -155,8 +155,17 @@ export const loginUserPost = async (req, res, next) => {
 };
 
 
-export const logoutUser=(req,res,next)=>{
-    req.session.isLoggedIn=false;
-    req.session.destroy();
-    res.redirect('/');
+export const logoutUser = (req, res, next) => {
+    req.session.isLoggedIn = false;
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    req.session.destroy((err) => {
+        if (err) {
+            console.log(err);
+        }
+
+        res.redirect('/auth/login');
+    });
+
 }

@@ -58,9 +58,12 @@ export const getThought = async (req, res, next) => {
 
 export const getThoughts = async (req, res, next) => {
     // console.log(req.session.user);
-    // console.log(req.user);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    console.log(req.user);
     console.log(req.session.isLoggedIn);
-    if (req.session.isLoggedIn==false) {
+    if (req.session.isLoggedIn==false || req.session.isLoggedIn==undefined) {
        return res.redirect('/');
     }
     else{
@@ -70,7 +73,6 @@ export const getThoughts = async (req, res, next) => {
                 .sort({ createdAt: -1 });
             // .skip((currentPage - 1) * perPage)
             // .limit(perPage);
-            console.log(thoughts.creator);
             res.status(200).render('posts/allpost', {
                 pageTitle: "Thoughts",
                 thoughts: thoughts,
