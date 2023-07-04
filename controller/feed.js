@@ -59,13 +59,10 @@ export const getThought = async (req, res, next) => {
 
 export const getThoughts = async (req, res, next) => {
     // console.log(req.session.user);
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
     // console.log(req.user);
-    // console.log(req.session.isLoggedIn);
-    if (req.session.isLoggedIn == false || req.session.isLoggedIn == undefined) {
-        return res.redirect('/');
+    console.log(req.session.isLoggedIn);
+    if (req.session.isLoggedIn==false) {
+       return res.redirect('/');
     }
     else {
         try {
@@ -74,17 +71,7 @@ export const getThoughts = async (req, res, next) => {
                 .sort({ createdAt: -1 });
             // .skip((currentPage - 1) * perPage)
             // .limit(perPage);
-            const transformedThoughts = thoughts.map(thought => {
-                const createdAt = new Date(thought.createdAt);
-                const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                const formattedDate = createdAt.toLocaleDateString('en-IN', options);
-                const title = thought.title;
-                const th = thought.thought;
-                const creatorName = thought.creator.name; // Replace 'name' with the property name you want to display
-
-                return { title: title, thought: th, createdAt: formattedDate, creator: creatorName };
-            });
-
+            console.log(thoughts.creator);
             res.status(200).render('posts/allpost', {
                 pageTitle: "Thoughts",
                 thoughts: transformedThoughts,
