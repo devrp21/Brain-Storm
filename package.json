@@ -21,15 +21,14 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
-<<<<<<< HEAD
     "connect-flash": "^0.1.1",
-=======
->>>>>>> e16239878b8cc0b7e0f37f3aa02c7876eef757df
+    "date-fns": "^2.30.0",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
     "mongoose": "^7.3.0",
     "nodemon": "^2.0.22"
   }

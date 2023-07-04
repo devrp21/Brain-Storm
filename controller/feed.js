@@ -1,6 +1,7 @@
 import Post from '../model/post.js';
 import User from '../model/user.js';
 
+
 import { validationResult } from 'express-validator';
 
 
@@ -16,7 +17,7 @@ export const getCreateThought = (req, res, next) => {
 export const postCreateThought = async (req, res, next) => {
     const title = req.body.title;
     const thought = req.body.thought;
-    
+
     const post = new Post({
         title: title,
         thought: thought,
@@ -58,22 +59,35 @@ export const getThought = async (req, res, next) => {
 
 export const getThoughts = async (req, res, next) => {
     // console.log(req.session.user);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     // console.log(req.user);
-    console.log(req.session.isLoggedIn);
-    if (req.session.isLoggedIn==false) {
-       return res.redirect('/');
+    // console.log(req.session.isLoggedIn);
+    if (req.session.isLoggedIn == false || req.session.isLoggedIn == undefined) {
+        return res.redirect('/');
     }
-    else{
+    else {
         try {
             const thoughts = await Post.find()
                 .populate('creator')
                 .sort({ createdAt: -1 });
             // .skip((currentPage - 1) * perPage)
             // .limit(perPage);
-            console.log(thoughts.creator);
+            const transformedThoughts = thoughts.map(thought => {
+                const createdAt = new Date(thought.createdAt);
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                const formattedDate = createdAt.toLocaleDateString('en-IN', options);
+                const title = thought.title;
+                const th = thought.thought;
+                const creatorName = thought.creator.name; // Replace 'name' with the property name you want to display
+
+                return { title: title, thought: th, createdAt: formattedDate, creator: creatorName };
+            });
+
             res.status(200).render('posts/allpost', {
                 pageTitle: "Thoughts",
-                thoughts: thoughts,
+                thoughts: transformedThoughts,
                 errorMessage: '',
                 isAuth: true
             });
@@ -85,10 +99,24 @@ export const getThoughts = async (req, res, next) => {
             next(err);
         }
     }
-    
+
 
 };
 
 export const getHome = (req, res, next) => {
     res.render('home', { pageTitle: "Home", isAuth: false });
+};
+
+export const myThoughts = async (req, res, next) => {
+
+    const mythoughts = await Post.find({ creator: req.user._id }).sort({ createdAt: -1 });
+    const transformedThoughts = mythoughts.map(thought => {
+        const createdAt = new Date(thought.createdAt);
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        const formattedDate = createdAt.toLocaleDateString('en-IN', options);
+        const title = thought.title;
+        const th = thought.thought;
+             return { title: title, thought: th, createdAt: formattedDate };
+    });
+    res.render('posts/mythoughts', { pageTitle: "My Thoughts", isAuth: true, mythoughts: transformedThoughts });
 }
