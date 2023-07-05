@@ -24,8 +24,13 @@ export const postCreateThought = async (req, res, next) => {
         creator: req.userId
     });
 
+
+
     try {
-        await post.save();
+        const savedThought = await post.save();
+        const user = await User.findById(req.userId);
+        user.thoughts.push(savedThought._id);
+        await user.save();
         res.redirect('/feed/thoughts');
     }
     catch (err) {
@@ -101,31 +106,68 @@ export const getHome = (req, res, next) => {
 };
 
 export const myThoughts = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id).populate('thoughts');
+        const mythoughts = user.thoughts.sort((a, b) => b.createdAt - a.createdAt);
 
-    const mythoughts = await Post.find({ creator: req.user._id }).sort({ createdAt: -1 });
-    const transformedThoughts = mythoughts.map(thought => {
-        const createdAt = new Date(thought.createdAt);
-        const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        const formattedDate = createdAt.toLocaleDateString('en-IN', options);
-        const title = thought.title;
-        const th = thought.thought;
-        return { title: title, thought: th, createdAt: formattedDate };
-    });
-    res.render('posts/mythoughts', { pageTitle: "My Thoughts", isAuth: true, mythoughts: transformedThoughts });
+        const transformedThoughts = mythoughts.map((thought) => {
+            const createdAt = new Date(thought.createdAt);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const formattedDate = createdAt.toLocaleDateString('en-IN', options);
+            const title = thought.title;
+            const th = thought.thought;
+            const thoughtId = thought._id; // Get the thought ID
+            return { thoughtId: thoughtId, title: title, thought: th, createdAt: formattedDate };
+        });
+
+        res.render('posts/mythoughts', {
+            pageTitle: 'My Thoughts',
+            isAuth: true,
+            mythoughts: transformedThoughts,
+        });
+    } catch (err) {
+        next(err);
+    }
 };
 
-export const uploadImage=(req,res,next)=>{
-    const image=req.file;
-    if(!image){
+
+export const uploadImage = (req, res, next) => {
+    const image = req.file;
+    if (!image) {
         res.redirect('/feed/mythoughts');
     }
-    else{
-        const imageUrl=image.path;
-        const user=new User({
-            imageUrl:imageUrl
+    else {
+        const imageUrl = image.path;
+        const user = new User({
+            imageUrl: imageUrl
         });
 
         user.save();
         res.redirect('/feed/mythoughts')
+    }
+};
+
+export const getMyProfile = (req, res, next) => {
+    const username = req.user.name;
+    const email = req.user.email;
+    res.render('profile/myprofile', { pageTitle: 'My Profile', isAuth: true, username: username, email: email })
+};
+
+// delete thought
+export const deleteThought = async (req, res, next) => {
+    try {
+        const thoughtId = req.params.thoughtId;
+
+        // Delete thought from the posts collection
+        await Post.findByIdAndDelete(thoughtId);
+
+        // Remove thought ID from the user's thoughts array
+        const user = await User.findById(req.user._id);
+        user.thoughts.pull(thoughtId);
+        await user.save();
+
+        res.redirect('/feed/mythoughts');
+    } catch (err) {
+        next(err);
     }
 };

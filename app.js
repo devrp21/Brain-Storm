@@ -10,6 +10,8 @@ import { fileURLToPath } from 'url';
 import User from './model/user.js';
 import { getHome } from './controller/feed.js';
 import multer from 'multer';
+import methodOverride from 'method-override';
+import checkAndUpdateData from './utils/dataConsistency.js';
 
 
 
@@ -71,6 +73,8 @@ app.use(async (req, res, next) => {
     }
 });
 
+app.use(methodOverride('_method'));
+
 app.use('/feed', feedRoutes);
 app.use('/auth', userRoutes);
 app.get('/',getHome);
@@ -87,12 +91,17 @@ app.get('/',getHome);
 
 mongoose.connect('mongodb+srv://devrpatel2106:DeV5470@cluster0.rqrchwt.mongodb.net/brainstorm')
     .then(result => {
+      checkAndUpdateData()
+      .then(() => {
+        console.log('Data consistency check completed');
+        // Start the server
         const server = app.listen(8080);
         if (server) {
-            console.log('Server Run at 8080');
-        }
-        else {
-            console.log('Error');
-        }
+          console.log('Server Run at 8080');
+      }
+      else {
+          console.log('Error');
+      }
+      })
     })
     .catch(err => console.log(err));

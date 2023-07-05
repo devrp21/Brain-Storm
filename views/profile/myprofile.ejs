@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%=pageTitle%></title>
+</head>
+<body style="background: radial-gradient(#000000 0%, #2c3e50 74%);">
+    <%- include('../includes/head.ejs')%>
+
+<%- include('../includes/navbar.ejs')%>
+<section class="vh-100 gradient-custom">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+
+            <div class="mb-md-5 mt-md-4 pb-5">
+              <h2 class="fw-bold mb-2 text-uppercase">Profile</h2>
+                            
+                <label >Name : <%=username%></label>
+                <label >Email : <%=email%></label>
+      
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+  <%- include('../includes/end.ejs')%>
+</body>
+</html>
