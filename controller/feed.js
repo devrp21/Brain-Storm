@@ -1,5 +1,6 @@
 import Post from '../model/post.js';
 import User from '../model/user.js';
+import fs from 'fs';
 
 
 import { validationResult } from 'express-validator';
@@ -131,26 +132,42 @@ export const myThoughts = async (req, res, next) => {
 };
 
 
-export const uploadImage = (req, res, next) => {
+export const uploadImage = async (req, res, next) => {
     const image = req.file;
     if (!image) {
-        res.redirect('/feed/mythoughts');
-    }
-    else {
-        const imageUrl = image.path;
-        const user = new User({
-            imageUrl: imageUrl
+      res.redirect('/feed/myprofile');
+    } else {
+      const imageUrl = image.path;
+      const user = req.user;
+  
+      // Delete the old image file
+      if (user.imageUrl) {
+        fs.unlink(user.imageUrl, (err) => {
+          if (err) {
+            console.error('Error deleting old image:', err);
+          }
         });
-
-        user.save();
-        res.redirect('/feed/mythoughts')
+      }
+  
+      // Update the user's image URL
+      user.imageUrl = imageUrl;
+  
+      try {
+        await user.save();
+        res.redirect('/feed/myprofile');
+      } catch (err) {
+        next(err);
+      }
     }
-};
+  };
+  
 
 export const getMyProfile = (req, res, next) => {
     const username = req.user.name;
     const email = req.user.email;
-    res.render('profile/myprofile', { pageTitle: 'My Profile', isAuth: true, username: username, email: email })
+    let imageUrl=req.user.imageUrl;
+    imageUrl = imageUrl.replace('\\', '/');
+    res.render('profile/myprofile', { pageTitle: 'My Profile', isAuth: true,imageUrl:imageUrl, username: username, email: email })
 };
 
 // delete thought

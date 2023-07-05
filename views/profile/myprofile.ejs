@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%=pageTitle%></title>
+  <style>
+    .profile-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
 </head>
 <body style="background: radial-gradient(#000000 0%, #2c3e50 74%);">
     <%- include('../includes/head.ejs')%>
@@ -18,17 +26,30 @@
 
             <div class="mb-md-5 mt-md-4 pb-5">
               <h2 class="fw-bold mb-2 text-uppercase">Profile</h2>
+              <!-- Display profile picture -->
+              <% if (imageUrl) { %>
+                <img class="profile-image" src="<%=imageUrl%>" alt="Profile Picture"><br>
+              <% } %>
                             
-                <label >Name : <%=username%></label><br/>
-                <label >Email : <%=email%></label>
+                <label>Name: <%=username%></label><br/>
+                <label>Email: <%=email%></label>
+                
+                
+                
+                <!-- Form to upload an image -->
+                <form action="/feed/uploadImage" method="post" enctype="multipart/form-data">
+                  <input type="file" name="image" accept="image/*">
+                  <button type="submit">Upload</button>
+                </form>
       
-                </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+</section>
 
-  <%- include('../includes/end.ejs')%>
+<%- include('../includes/end.ejs')%>
 </body>
 </html>

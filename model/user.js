@@ -16,8 +16,7 @@ const userSchema = new Schema({
         required: true
     },
     imageUrl: {
-        filename: String,
-        data: Buffer
+        type:String
       },
     thoughts: [{
         type: Schema.Types.ObjectId,
