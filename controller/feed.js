@@ -58,20 +58,26 @@ export const getThought = async (req, res, next) => {
 };
 
 export const getThoughts = async (req, res, next) => {
-    // console.log(req.session.user);
-    // console.log(req.user);
-    console.log(req.session.isLoggedIn);
-    if (req.session.isLoggedIn==false) {
-       return res.redirect('/');
+
+    if (req.session.isLoggedIn == false || req.session.isLoggedIn == undefined) {
+        return res.redirect('/');
     }
     else {
         try {
             const thoughts = await Post.find()
                 .populate('creator')
                 .sort({ createdAt: -1 });
-            // .skip((currentPage - 1) * perPage)
-            // .limit(perPage);
-            console.log(thoughts.creator);
+
+            const transformedThoughts = thoughts.map(thought => {
+                const createdAt = new Date(thought.createdAt);
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                const formattedDate = createdAt.toLocaleDateString('en-IN', options);
+                const title = thought.title;
+                const th = thought.thought;
+                const creatorName = thought.creator.name;
+                return { title: title, thought: th, createdAt: formattedDate, creator: creatorName };
+            });
+
             res.status(200).render('posts/allpost', {
                 pageTitle: "Thoughts",
                 thoughts: transformedThoughts,
@@ -103,7 +109,23 @@ export const myThoughts = async (req, res, next) => {
         const formattedDate = createdAt.toLocaleDateString('en-IN', options);
         const title = thought.title;
         const th = thought.thought;
-             return { title: title, thought: th, createdAt: formattedDate };
+        return { title: title, thought: th, createdAt: formattedDate };
     });
     res.render('posts/mythoughts', { pageTitle: "My Thoughts", isAuth: true, mythoughts: transformedThoughts });
-}
+};
+
+export const uploadImage=(req,res,next)=>{
+    const image=req.file;
+    if(!image){
+        res.redirect('/feed/mythoughts');
+    }
+    else{
+        const imageUrl=image.path;
+        const user=new User({
+            imageUrl:imageUrl
+        });
+
+        user.save();
+        res.redirect('/feed/mythoughts')
+    }
+};

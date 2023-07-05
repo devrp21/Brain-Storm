@@ -1,28 +1,63 @@
-<%- include('../includes/head.ejs')%>
+<!DOCTYPE html>
+<html lang="en">
 
-<%- include('../includes/navbar.ejs')%>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%=pageTitle%>
+  </title>
+</head>
 
-  <div class="login-page">
-    <div class="form">
-      <div class="login">
-        <div class="login-header">
-          <h3>LOGIN</h3>
-          <p>Please enter your credentials to login.</p>
-          <%if (errorMessage) {%>
-            <div class="user-message user-message--error">
-                <%=errorMessage%>
+<body style="background: radial-gradient(#000000 0%, #2c3e50 74%);">
+  <%- include('../includes/head.ejs')%>
+
+    <%- include('../includes/navbar.ejs')%>
+      <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+              <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+
+                  <div class="mb-md-5 mt-md-4 pb-5">
+                    <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                    <p class="text-white-50 mb-5">Please enter your login and password</p>
+
+                    <%if (errorMessage) {%>
+                      <div class="user-message user-message--error">
+                        <%=errorMessage%>
+                      </div>
+                      <% } %>
+
+                        <form class="login-form" method="post" action="/auth/login">
+                          <div class="form-outline form-white mb-4">
+                            <input class="form-control form-control-lg " type="text" placeholder="email" name="email" />
+                          </div>
+
+                          <div class="form-outline form-white mb-4">
+                            <input class="form-control form-control-lg" type="password" placeholder="password"
+                              name="password" />
+
+                          </div>
+                          <button class="btn btn-outline-light btn-lg px-5">login</button>
+                        </form>
+                        <div>
+                          <p class="mt-4">Don't have an account? <a href="/auth/signup"" class=" text-white-50
+                              fw-bold">Sign Up</a>
+                          </p>
+                        </div>
+
+                  </div>
+                </div>
+              </div>
             </div>
-            <% } %>
-        </div>
-      </div>
-      
-      <form class="login-form" method="post" action="/auth/login">
-        <input type="text" placeholder="email" name="email" />
-        <input type="password" placeholder="password" name="password"  />
-        <button>login</button>
-        <p class="message">Not registered? <a href="/auth/signup">Create an account</a></p>
-      </form>
-    </div>
-  </div>
+          </div>
+      </section>
 
-  <%- include('../includes/end.ejs')%>
+      <%- include('../includes/end.ejs')%>
+
+
+</body>
+
+</html>

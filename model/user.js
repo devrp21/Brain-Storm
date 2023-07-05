@@ -15,6 +15,10 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    imageUrl: {
+        filename: String,
+        data: Buffer
+      },
     thoughts: [{
         type: Schema.Types.ObjectId,
         ref: 'Post'
