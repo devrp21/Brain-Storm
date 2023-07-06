@@ -168,4 +168,33 @@ export const logoutUser = (req, res, next) => {
         res.redirect('/auth/login');
     });
 
-}
+};
+
+export const getUserProfile = async (req, res, next) => {
+    try {
+        const username=req.params.userName;
+        // Find the user based on the username
+        const user = await User.findOne({name: username }).exec();
+
+        if (!user) {
+            // Handle case when user is not found
+            return res.status(404).render('user-not-found', { pageTitle: 'User Not Found' });
+        }
+
+        const thoughtIds = user.thoughts; // Assuming user.thoughts is an array of thought IDs
+        const thoughts = [];
+
+        // Fetch each thought from the post collection based on the thought IDs
+        for (const thoughtId of thoughtIds) {
+            const thought = await Post.findById(thoughtId).exec();
+            if (thought) {
+                thoughts.push(thought);
+            }
+        }
+
+        console.log(thoughts);
+        res.render('user-profile', { pageTitle: 'User Profile', username, thoughts });
+    } catch (err) {
+        next(err);
+    }
+};

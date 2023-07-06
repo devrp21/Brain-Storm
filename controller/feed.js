@@ -80,8 +80,13 @@ export const getThoughts = async (req, res, next) => {
                 const formattedDate = createdAt.toLocaleDateString('en-IN', options);
                 const title = thought.title;
                 const th = thought.thought;
+                const creatorId=thought.creator._id;
                 const creatorName = thought.creator.name;
-                return { title: title, thought: th, createdAt: formattedDate, creator: creatorName };
+                let imageUrl = thought.creator.imageUrl;
+                if (imageUrl == undefined) {
+                    imageUrl = 'images\\th.jpeg'
+                }
+                return { title: title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl: imageUrl, creatorId:creatorId };
             });
 
             res.status(200).render('posts/allpost', {
@@ -135,39 +140,39 @@ export const myThoughts = async (req, res, next) => {
 export const uploadImage = async (req, res, next) => {
     const image = req.file;
     if (!image) {
-      res.redirect('/feed/myprofile');
-    } else {
-      const imageUrl = image.path;
-      const user = req.user;
-  
-      // Delete the old image file
-      if (user.imageUrl) {
-        fs.unlink(user.imageUrl, (err) => {
-          if (err) {
-            console.error('Error deleting old image:', err);
-          }
-        });
-      }
-  
-      // Update the user's image URL
-      user.imageUrl = imageUrl;
-  
-      try {
-        await user.save();
         res.redirect('/feed/myprofile');
-      } catch (err) {
-        next(err);
-      }
+    } else {
+        const imageUrl = image.path;
+        const user = req.user;
+
+        // Delete the old image file
+        if (user.imageUrl) {
+            fs.unlink(user.imageUrl, (err) => {
+                if (err) {
+                    console.error('Error deleting old image:', err);
+                }
+            });
+        }
+
+        // Update the user's image URL
+        user.imageUrl = imageUrl;
+
+        try {
+            await user.save();
+            res.redirect('/feed/myprofile');
+        } catch (err) {
+            next(err);
+        }
     }
-  };
-  
+};
+
 
 export const getMyProfile = (req, res, next) => {
     const username = req.user.name;
     const email = req.user.email;
-    let imageUrl=req.user.imageUrl;
+    let imageUrl = req.user.imageUrl;
     imageUrl = imageUrl.replace('\\', '/');
-    res.render('profile/myprofile', { pageTitle: 'My Profile', isAuth: true,imageUrl:imageUrl, username: username, email: email })
+    res.render('profile/myprofile', { pageTitle: 'My Profile', isAuth: true, imageUrl: imageUrl, username: username, email: email })
 };
 
 // delete thought

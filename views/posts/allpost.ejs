@@ -1,198 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%=pageTitle%></title>
+  <title>
+    <%=pageTitle%>
+  </title>
   <style>
+    .card__image {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
     * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-body {
-    background-color: #000000;
-background-image: linear-gradient(147deg, #000000 0%, #2c3e50 74%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
+    body {
+      background-color: #000000;
+      background-image: linear-gradient(147deg, #000000 0%, #2c3e50 74%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+        Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
 
-.main-container {
-  padding: 30px;
-}
+    .main-container {
+      padding: 30px;
+    }
 
-/* HEADING */
+    /* HEADING */
 
-.heading {
-  text-align: center;
-}
+    .heading {
+      text-align: center;
+    }
 
-.heading__title {
-  font-weight: 600;
-}
+    .heading__title {
+      font-weight: 600;
+    }
 
-.heading__credits {
-  margin: 10px 0px;
-  color: #888888;
-  font-size: 25px;
-  transition: all 0.5s;
-}
+    .heading__credits {
+      margin: 10px 0px;
+      color: #888888;
+      font-size: 25px;
+      transition: all 0.5s;
+    }
 
-.heading__link {
-  text-decoration: none;
-}
+    .heading__link {
+      text-decoration: none;
+    }
 
-.heading__credits .heading__link {
-  color: inherit;
-}
+    .heading__credits .heading__link {
+      color: inherit;
+    }
 
-/* CARDS */
+    /* CARDS */
 
-.cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
 
-.card {
-  margin: 20px;
-  padding: 20px;
-  width: 500px;
-  min-height: 200px;
-  display: grid;
-  grid-template-rows: 20px 50px 1fr 50px;
-  border-radius: 10px;
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.25);
-  transition: all 0.2s;
-}
+    .card {
+      margin: 20px;
+      padding: 20px;
+      width: 500px;
+      min-height: 200px;
+      display: grid;
+      grid-template-rows: 20px 50px 1fr 50px;
+      border-radius: 10px;
+      box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.25);
+      transition: all 0.2s;
+    }
 
-.card:hover {
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.4);
-  transform: scale(1.01);
-}
+    .card:hover {
+      box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.4);
+      transform: scale(1.01);
+    }
 
-.card__link,
-.card__exit,
-.card__title {
-  position: relative;
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
-}
+    .card__link,
+    .card__exit,
+    .card__title {
+      position: relative;
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.9);
+    }
 
-.card__link::after {
-  position: absolute;
-  top: 25px;
-  left: 0;
-  content: "";
-  width: 0%;
-  height: 3px;
-  background-color: rgba(255, 255, 255, 0.6);
-  transition: all 0.5s;
-}
+    .card__link::after {
+      position: absolute;
+      top: 25px;
+      left: 0;
+      content: "";
+      width: 0%;
+      height: 3px;
+      background-color: rgba(255, 255, 255, 0.6);
+      transition: all 0.5s;
+    }
 
-.card__link:hover::after {
-  width: 100%;
-}
-
-
-.card__title {
-  grid-row: 1/3;
-  font-size: 20px;
-  color: #2e2d2d;
-}
-
-.card__content {
-  grid-row: 2/3;
-  font-style: oblique;
-  font-weight: 400;
-  color: #000000;
-}
-
-.card__creator {
-  grid-row: 3/3;
-  align-self: center;
-  color: #5b5959;
-}
-
-/* CARD BACKGROUNDS */
-
-.card-1 {
-    background-color: #7ee8fa;
-background-image: linear-gradient(315deg, #7ee8fa 0%, #80ff72 74%);
-
-}
-
-.card-2 {
-  background: radial-gradient(#fbc1cc, #fa99b2);
-}
-
-.card-3 {
-  background: radial-gradient(#76b2fe, #b69efe);
-}
-
-.card-4 {
-  background: radial-gradient(#60efbc, #58d5c9);
-}
-
-.card-5 {
-  background: radial-gradient(#f588d8, #c0a3e5);
-}
-.card-6 {
-    background-color: #eec0c6;
-background-image: linear-gradient(315deg, #eec0c6 0%, #7ee8fa 74%);
-}
-.card-7 {
-    background-color: #98ce00;
-background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%);
-}
+    .card__link:hover::after {
+      width: 100%;
+    }
 
 
-/* RESPONSIVE */
+    .card__title {
+      grid-row: 1/3;
+      font-size: 20px;
+      color: #2e2d2d;
+    }
 
-@media (max-width: 1600px) {
-  .cards {
-    justify-content: center;
-  }
-}
+    .card__content {
+      grid-row: 2/3;
+      font-style: oblique;
+      font-weight: 400;
+      color: #000000;
+    }
 
+    .card__creator {
+      grid-row: 3/3;
+      align-self: center;
+      color: #5b5959;
+    }
+
+    /* CARD BACKGROUNDS */
+
+    .card-1 {
+      background-color: #7ee8fa;
+      background-image: linear-gradient(315deg, #7ee8fa 0%, #80ff72 74%);
+
+    }
+
+    .card-2 {
+      background: radial-gradient(#fbc1cc, #fa99b2);
+    }
+
+    .card-3 {
+      background: radial-gradient(#76b2fe, #b69efe);
+    }
+
+    .card-4 {
+      background: radial-gradient(#60efbc, #58d5c9);
+    }
+
+    .card-5 {
+      background: radial-gradient(#f588d8, #c0a3e5);
+    }
+
+    .card-6 {
+      background-color: #eec0c6;
+      background-image: linear-gradient(315deg, #eec0c6 0%, #7ee8fa 74%);
+    }
+
+    .card-7 {
+      background-color: #98ce00;
+      background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%);
+    }
+
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1600px) {
+      .cards {
+        justify-content: center;
+      }
+    }
   </style>
 </head>
+
 <body>
-<%- include('../includes/head.ejs')%>
-    
-        <%- include('../includes/navbar.ejs')%>
-        <%if(isAuth){%>
-          
-<div class="main-container">
-  <div class="heading">
-    <h1 class="heading__title"></h1>
-  
-      <button class="btn btn-outline-light btn-lg px-5" type="button" onclick="window.location.href='/feed/postThought'">Post</button>
-    
-    
-  </div>
-  <div class="cards">
-    <% thoughts.forEach(function(th) {%>
- <% let min = 1;%>
- <% let max = 5;%>
-    
-    <div class="card card-<%=Math.floor(Math.random() * (7 - 1) + 1);%>">
-     
-      <div class="card__title"><%=th.title%></div>
-      <h2 class="card__content"><%=th.thought%></h2>
-      <p class="card__creator">
-        <%=th.creator%>
-      </p>
-      <p class="card__creator">
-        <%=th.createdAt%>
-      </p>
-    </div>
-  
-    <%});%>
-    <%}%>
-  </div>
- 
-</div>
+  <%- include('../includes/head.ejs')%>
+    <%- include('../includes/navbar.ejs')%>
+
+      <% if (isAuth) { %>
+        <div class="main-container">
+          <div class="heading">
+            <h1 class="heading__title"></h1>
+            <button class="btn btn-outline-light btn-lg px-5" type="button"
+              onclick="window.location.href='/feed/postThought'">Post</button>
+          </div>
+          <div class="cards">
+            <% thoughts.forEach(function(th) { %>
+              <% let min=1; %>
+                <% let max=5; %>
+                  <div class="card card-<%= Math.floor(Math.random() * (7 - 1) + 1); %>">
+                    <% if (th.imageUrl) { %>
+                      <p class="card__creator">
+                        <%= th.creator %>
+                      </p>
+                      <a href="/auth/profile/<%= th.creator %>">
+                        <img class="card__image" src="<%= th.imageUrl %>" alt="Profile Image">
+                      </a>
+
+                      <% } %>
+
+                        <div class="card__title">
+                          <%= th.title %>
+                        </div>
+                        <h2 class="card__content">
+                          <%= th.thought %>
+                        </h2>
+                        <p class="card__creator">
+                          <%= th.createdAt %>
+                        </p>
+                  </div>
+                  <% }); %>
+          </div>
+        </div>
+        <% } %>
 </body>
+
 </html>
