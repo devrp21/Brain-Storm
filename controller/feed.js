@@ -1,6 +1,8 @@
 import Post from '../model/post.js';
 import User from '../model/user.js';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 import { validationResult } from 'express-validator';
@@ -35,7 +37,9 @@ export const postCreateThought = async (req, res, next) => {
         res.redirect('/feed/thoughts');
     }
     catch (err) {
-        next(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
     }
 };
 
@@ -55,10 +59,9 @@ export const getThought = async (req, res, next) => {
         res.status(200).json({ message: 'Thought fetched.', thought: thought });
     }
     catch (err) {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
     };
 
 };
@@ -75,18 +78,23 @@ export const getThoughts = async (req, res, next) => {
                 .sort({ createdAt: -1 });
 
             const transformedThoughts = thoughts.map(thought => {
+                const __filename = fileURLToPath(import.meta.url);
+                const __dirname = path.dirname(__filename);
+               
                 const createdAt = new Date(thought.createdAt);
                 const options = { day: 'numeric', month: 'long', year: 'numeric' };
                 const formattedDate = createdAt.toLocaleDateString('en-IN', options);
                 const title = thought.title;
                 const th = thought.thought;
-                const creatorId=thought.creator._id;
+                const creatorId = thought.creator._id;
                 const creatorName = thought.creator.name;
-                let imageUrl = thought.creator.imageUrl;
-                if (imageUrl == undefined) {
-                    imageUrl = 'images\\th.jpeg'
+                var imageUrl = thought.creator.imageUrl;
+                
+                if(imageUrl==undefined){
+                    imageUrl='images/th.jpeg';
                 }
-                return { title: title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl: imageUrl, creatorId:creatorId };
+
+                return { title: title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl: imageUrl, creatorId: creatorId };
             });
 
             res.status(200).render('posts/allpost', {
@@ -97,15 +105,149 @@ export const getThoughts = async (req, res, next) => {
             });
         }
         catch (err) {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
         }
     }
 
 
 };
+
+// export const getThoughts = async (req, res, next) => {
+//     if (!req.session.isLoggedIn) {
+//         return res.redirect('/');
+//     } else {
+//         try {
+//             const thoughts = await Post.find()
+//                 .populate('creator')
+//                 .sort({ createdAt: -1 });
+
+//             const getImageUrl = (imageUrl) => {
+//                 return new Promise((resolve, reject) => {
+//                     const parentDir = path.join(__dirname, '../'); // Go one level up
+//                     const imagePath = path.resolve(parentDir, imageUrl);
+
+//                     fs.access(imagePath, fs.constants.F_OK, (err) => {
+//                         if (err) {
+//                             // Image file does not exist, replace with another image
+//                             resolve('images/th.jpeg');
+//                         } else {
+//                             resolve(imageUrl);
+//                         }
+//                     });
+//                 });
+//             };
+
+//             const fallbackImageUrl = 'images/th.jpeg';
+//             const __filename = fileURLToPath(import.meta.url);
+//             const __dirname = path.dirname(__filename);
+//             console.log(__filename);
+//             console.log(__dirname);
+//             const transformedThoughts = thoughts.map(async (thought) => {
+//                 const createdAt = new Date(thought.createdAt);
+//                 const options = { day: 'numeric', month: 'long', year: 'numeric' };
+//                 const formattedDate = createdAt.toLocaleDateString('en-IN', options);
+//                 const title = thought.title;
+//                 const th = thought.thought;
+//                 const creatorId = thought.creator._id;
+//                 const creatorName = thought.creator.name;
+//                 let imageUrl = thought.creator.imageUrl;
+//                 // const imagePath = path.join(__dirname, imageUrl);
+//                 const updatedImageUrl = await getImageUrl(imageUrl);
+//                 // fs.access(imagePath, fs.constants.F_OK, (err) => {
+//                 //     if (err) {
+//                 //         // Image file does not exist, replace with another image
+//                 //         imageUrl = 'images/th.jpeg';
+//                 //     }
+//                 // });
+//                 return {
+//                     title: title,
+//                     thought: th,
+//                     createdAt: formattedDate,
+//                     creator: creatorName,
+//                     imageUrl: updatedImageUrl,
+//                     creatorId: creatorId
+//                 };
+//             });
+
+//             res.status(200).render('posts/allpost', {
+//                 pageTitle: 'Thoughts',
+//                 thoughts: transformedThoughts,
+//                 errorMessage: '',
+//                 isAuth: true
+//             });
+//         } catch (err) {
+//             const error = new Error(err);
+//             error.httpStatusCode = 500;
+//             return next(error);
+//         }
+//     }
+// };
+
+// export const getThoughts = async (req, res, next) => {
+//     if (!req.session.isLoggedIn) {
+//       return res.redirect('/');
+//     }
+
+//     try {
+//       const thoughts = await Post.find()
+//         .populate('creator')
+//         .sort({ createdAt: -1 });
+
+//       const fallbackImageUrl = 'images/th.jpeg';
+//       const parentDir = path.dirname(fileURLToPath(import.meta.url));
+// const __dirname = path.resolve(parentDir, '../');
+
+//       const getImageUrl = async (imageUrl) => {
+//         const imagePath = path.resolve(__dirname, imageUrl);
+
+//         try {
+//           await fs.access(imagePath, fs.constants.F_OK);
+//           // Image file exists, use the original image URL
+//           return imageUrl;
+//         } catch (err) {
+//           // Image file does not exist, replace with the fallback image URL
+//           return fallbackImageUrl;
+//         }
+//       };
+
+//       const transformedThoughts = await Promise.all(
+//         thoughts.map(async (thought) => {
+//           const createdAt = new Date(thought.createdAt);
+//           const options = { day: 'numeric', month: 'long', year: 'numeric' };
+//           const formattedDate = createdAt.toLocaleDateString('en-IN', options);
+//           const title = thought.title;
+//           const th = thought.thought;
+//           const creatorId = thought.creator._id;
+//           const creatorName = thought.creator.name;
+//           const imageUrl = thought.creator.imageUrl;
+
+//           const updatedImageUrl = await getImageUrl(imageUrl);
+
+//           return {
+//             title: title,
+//             thought: th,
+//             createdAt: formattedDate,
+//             creator: creatorName,
+//             imageUrl: updatedImageUrl,
+//             creatorId: creatorId,
+//           };
+//         })
+//       );
+
+//       res.status(200).render('posts/allpost', {
+//         pageTitle: 'Thoughts',
+//         thoughts: transformedThoughts,
+//         errorMessage: '',
+//         isAuth: true,
+//       });
+//     } catch (err) {
+//       const error = new Error(err);
+//       error.httpStatusCode = 500;
+//       return next(error);
+//     }
+//   };
 
 export const getHome = (req, res, next) => {
     res.render('home', { pageTitle: "Home", isAuth: false });
@@ -132,64 +274,8 @@ export const myThoughts = async (req, res, next) => {
             mythoughts: transformedThoughts,
         });
     } catch (err) {
-        next(err);
-    }
-};
-
-
-export const uploadImage = async (req, res, next) => {
-    const image = req.file;
-    if (!image) {
-        res.redirect('/feed/myprofile');
-    } else {
-        const imageUrl = image.path;
-        const user = req.user;
-
-        // Delete the old image file
-        if (user.imageUrl) {
-            fs.unlink(user.imageUrl, (err) => {
-                if (err) {
-                    console.error('Error deleting old image:', err);
-                }
-            });
-        }
-
-        // Update the user's image URL
-        user.imageUrl = imageUrl;
-
-        try {
-            await user.save();
-            res.redirect('/feed/myprofile');
-        } catch (err) {
-            next(err);
-        }
-    }
-};
-
-
-export const getMyProfile = (req, res, next) => {
-    const username = req.user.name;
-    const email = req.user.email;
-    let imageUrl = req.user.imageUrl;
-    imageUrl = imageUrl.replace('\\', '/');
-    res.render('profile/myprofile', { pageTitle: 'My Profile', isAuth: true, imageUrl: imageUrl, username: username, email: email })
-};
-
-// delete thought
-export const deleteThought = async (req, res, next) => {
-    try {
-        const thoughtId = req.params.thoughtId;
-
-        // Delete thought from the posts collection
-        await Post.findByIdAndDelete(thoughtId);
-
-        // Remove thought ID from the user's thoughts array
-        const user = await User.findById(req.user._id);
-        user.thoughts.pull(thoughtId);
-        await user.save();
-
-        res.redirect('/feed/mythoughts');
-    } catch (err) {
-        next(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
     }
 };
