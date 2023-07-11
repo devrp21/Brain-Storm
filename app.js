@@ -25,7 +25,7 @@ const publicPath = path.join(__dirname, "./public");
 const viewsPath = path.join(__dirname, "./views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
+app.use(bodyParser.json());
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'images');

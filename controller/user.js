@@ -50,7 +50,7 @@ export const uploadImage = async (req, res, next) => {
         if (user.imageUrl) {
             fs.unlink(user.imageUrl, (err) => {
                 if (err) {
-                    console.error('Error deleting old image:', err);
+                    // console.error('Error deleting old image:', err);
                 }
             });
         }

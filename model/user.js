@@ -16,11 +16,19 @@ const userSchema = new Schema({
         required: true
     },
     imageUrl: {
-        type:String
-      },
+        type: String
+    },
     thoughts: [{
         type: Schema.Types.ObjectId,
         ref: 'Post'
+    }],
+    followers: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    following: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     }]
 });
 

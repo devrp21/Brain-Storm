@@ -173,6 +173,7 @@
 </head>
 
 <body>
+  
   <%- include('../includes/head.ejs')%>
     <%- include('../includes/navbar.ejs')%>
 
@@ -207,11 +208,41 @@
                         <p class="card__creator">
                           <%= th.createdAt %>
                         </p>
+
+                        <%if(th.creatorId != th.currentUserId){%>
+                        <button class="follow-button" data-thought-id="<%= th._id %>">Follow</button>
+                        <%}%>
                   </div>
                   <% }); %>
           </div>
         </div>
         <% } %>
+        <script>
+          const followButtons = document.querySelectorAll('.follow-button');
+      
+          followButtons.forEach(button => {
+            button.addEventListener('click', async (event) => {
+              const thoughtId = event.target.dataset.thoughtId;
+              console.log(thoughtId);
+              const response = await fetch('/feed/follow', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ thoughtId })
+              });
+      
+              if (response.ok) {
+                // Handle success, e.g., display a success message or update UI
+                console.log('Successfully followed the thought\'s creator');
+              } else {
+                // Handle error, e.g., display an error message or show an alert
+                console.log('An error occurred while following the thought\'s creator');
+              }
+            });
+          });
+        </script>
+          
 </body>
 
 </html>
