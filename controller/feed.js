@@ -141,140 +141,6 @@ export const getThoughts = async (req, res, next) => {
 
 };
 
-// export const getThoughts = async (req, res, next) => {
-//     if (!req.session.isLoggedIn) {
-//         return res.redirect('/');
-//     } else {
-//         try {
-//             const thoughts = await Post.find()
-//                 .populate('creator')
-//                 .sort({ createdAt: -1 });
-
-//             const getImageUrl = (imageUrl) => {
-//                 return new Promise((resolve, reject) => {
-//                     const parentDir = path.join(__dirname, '../'); // Go one level up
-//                     const imagePath = path.resolve(parentDir, imageUrl);
-
-//                     fs.access(imagePath, fs.constants.F_OK, (err) => {
-//                         if (err) {
-//                             // Image file does not exist, replace with another image
-//                             resolve('images/th.jpeg');
-//                         } else {
-//                             resolve(imageUrl);
-//                         }
-//                     });
-//                 });
-//             };
-
-//             const fallbackImageUrl = 'images/th.jpeg';
-//             const __filename = fileURLToPath(import.meta.url);
-//             const __dirname = path.dirname(__filename);
-//             console.log(__filename);
-//             console.log(__dirname);
-//             const transformedThoughts = thoughts.map(async (thought) => {
-//                 const createdAt = new Date(thought.createdAt);
-//                 const options = { day: 'numeric', month: 'long', year: 'numeric' };
-//                 const formattedDate = createdAt.toLocaleDateString('en-IN', options);
-//                 const title = thought.title;
-//                 const th = thought.thought;
-//                 const creatorId = thought.creator._id;
-//                 const creatorName = thought.creator.name;
-//                 let imageUrl = thought.creator.imageUrl;
-//                 // const imagePath = path.join(__dirname, imageUrl);
-//                 const updatedImageUrl = await getImageUrl(imageUrl);
-//                 // fs.access(imagePath, fs.constants.F_OK, (err) => {
-//                 //     if (err) {
-//                 //         // Image file does not exist, replace with another image
-//                 //         imageUrl = 'images/th.jpeg';
-//                 //     }
-//                 // });
-//                 return {
-//                     title: title,
-//                     thought: th,
-//                     createdAt: formattedDate,
-//                     creator: creatorName,
-//                     imageUrl: updatedImageUrl,
-//                     creatorId: creatorId
-//                 };
-//             });
-
-//             res.status(200).render('posts/allpost', {
-//                 pageTitle: 'Thoughts',
-//                 thoughts: transformedThoughts,
-//                 errorMessage: '',
-//                 isAuth: true
-//             });
-//         } catch (err) {
-//             const error = new Error(err);
-//             error.httpStatusCode = 500;
-//             return next(error);
-//         }
-//     }
-// };
-
-// export const getThoughts = async (req, res, next) => {
-//     if (!req.session.isLoggedIn) {
-//       return res.redirect('/');
-//     }
-
-//     try {
-//       const thoughts = await Post.find()
-//         .populate('creator')
-//         .sort({ createdAt: -1 });
-
-//       const fallbackImageUrl = 'images/th.jpeg';
-//       const parentDir = path.dirname(fileURLToPath(import.meta.url));
-// const __dirname = path.resolve(parentDir, '../');
-
-//       const getImageUrl = async (imageUrl) => {
-//         const imagePath = path.resolve(__dirname, imageUrl);
-
-//         try {
-//           await fs.access(imagePath, fs.constants.F_OK);
-//           // Image file exists, use the original image URL
-//           return imageUrl;
-//         } catch (err) {
-//           // Image file does not exist, replace with the fallback image URL
-//           return fallbackImageUrl;
-//         }
-//       };
-
-//       const transformedThoughts = await Promise.all(
-//         thoughts.map(async (thought) => {
-//           const createdAt = new Date(thought.createdAt);
-//           const options = { day: 'numeric', month: 'long', year: 'numeric' };
-//           const formattedDate = createdAt.toLocaleDateString('en-IN', options);
-//           const title = thought.title;
-//           const th = thought.thought;
-//           const creatorId = thought.creator._id;
-//           const creatorName = thought.creator.name;
-//           const imageUrl = thought.creator.imageUrl;
-
-//           const updatedImageUrl = await getImageUrl(imageUrl);
-
-//           return {
-//             title: title,
-//             thought: th,
-//             createdAt: formattedDate,
-//             creator: creatorName,
-//             imageUrl: updatedImageUrl,
-//             creatorId: creatorId,
-//           };
-//         })
-//       );
-
-//       res.status(200).render('posts/allpost', {
-//         pageTitle: 'Thoughts',
-//         thoughts: transformedThoughts,
-//         errorMessage: '',
-//         isAuth: true,
-//       });
-//     } catch (err) {
-//       const error = new Error(err);
-//       error.httpStatusCode = 500;
-//       return next(error);
-//     }
-//   };
 
 export const getHome = (req, res, next) => {
     res.render('home', { pageTitle: "Home", isAuth: false });
@@ -307,39 +173,11 @@ export const myThoughts = async (req, res, next) => {
     }
 };
 
-// export const followUser = async(req, res, next) => {
-//     const { thoughtId } = req.body;
-//     const userId = req.userId; 
-
-//     try {
-//         // Find the thought by ID
-//         const thought = await Thought.findById(thoughtId);
-
-//         if (!thought) {
-//             return res.status(404).json({ message: 'Thought not found' });
-//         }
-
-//         // Find the thought's creator and update their followers array
-//         const creator = await User.findByIdAndUpdate(thought.creator, { $addToSet: { followers: userId } }, { new: true });
-
-//         if (!creator) {
-//             return res.status(404).json({ message: 'Creator not found' });
-//         }
-
-//         res.status(200).json({ message: 'Successfully followed the thought\'s creator' });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({ message: 'An error occurred' });
-//     }
-
-// };
-
 
 export const followUser = async (req, res, next) => {
     const { thoughtId } = req.body;
-    console.log(thoughtId);
     const userId = req.user._id.toString();
-    // console.log(userId.toString());
+    
     try {
         // Find the thought by ID
         const thought = await Post.findById(thoughtId);

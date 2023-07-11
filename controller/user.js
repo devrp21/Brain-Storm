@@ -93,23 +93,30 @@ export const getMyProfile = (req, res, next) => {
     const __dirname = path.dirname(__filename);
     const username = req.user.name;
     const email = req.user.email;
+    const followers = req.user.followers.length;
+    const following = req.user.following.length;
+    const thoughts=req.user.thoughts.length;
     var imageUrl = req.user.imageUrl;
+
 
     const imagePath = path.join(__dirname, '../', imageUrl.replace(/\\/g, '/'));
 
     fs.access(imagePath, fs.constants.F_OK, (err) => {
         if (err) {
             // Image file does not exist, replace with another image
-            console.log('no file');
+            // console.log('no file');
             imageUrl = 'images/th.jpeg';
         }
-        
+
         res.render('profile/myprofile', {
             pageTitle: 'My Profile',
             isAuth: true,
             imageUrl: imageUrl,
             username: username,
-            email: email
+            email: email,
+            followers: followers,
+            following: following,
+            thoughts:thoughts
         });
     });
 
@@ -127,6 +134,44 @@ export const deleteThought = async (req, res, next) => {
         const user = await User.findById(req.user._id);
         user.thoughts.pull(thoughtId);
         await user.save();
+
+        res.redirect('/feed/mythoughts');
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const editThoughtGet = async (req, res, next) => {
+    try {
+        const thoughtId = req.params.thoughtId;
+
+
+        const post = await Post.findById(thoughtId);
+        const title = post.title;
+        const thought = post.thought;
+
+        res.render('posts/editYourThought', { pageTitle: "Edit Your Thought", isAuth: true, errorMessage: '', title: title, thought: thought, thoughtId });
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+export const editThoughtPost = async (req, res, next) => {
+    try {
+        const thoughtId = req.params.thoughtId;
+        const title = req.body.title;
+        const thought = req.body.thought;
+        // Delete thought from the posts collection
+        const post = await Post.findByIdAndUpdate(
+            thoughtId,
+            {
+                title: title,
+                thought: thought,
+                updatedAt: new Date()
+            },
+            { new: true });
+
 
         res.redirect('/feed/mythoughts');
     } catch (err) {

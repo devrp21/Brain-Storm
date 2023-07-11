@@ -17,7 +17,7 @@
           <div class="card-body p-5 text-center">
 
             <div class="mb-md-5 mt-md-4 pb-5">
-              <h2 class="fw-bold mb-2 text-uppercase">Write Your Thought</h2>
+              <h2 class="fw-bold mb-2 text-uppercase">Edit Your Thought</h2>
               
 
   <%if (errorMessage) {%>
@@ -25,17 +25,17 @@
         <%=errorMessage%>
     </div>
     <% } %>
-  <form method="post" action="/feed/postThought">
+  <form method="post" action="/user/editThought/<%=thoughtId%>">
     <!-- Name input -->
     <div class="form-outline form-white mb-4">
       <label class="form-label" for="form4Example1">Title</label>
-      <input type="text" id="form4Example1" placeholder="Title" name="title" class="form-control" />
+      <input type="text" id="form4Example1" placeholder="Title" name="title" class="form-control" value="<%=title%>" />
     </div>
   
     <!-- Message input -->
     <div class="form-outline form-white mb-4">
       <label class="form-label" for="form4Example3">Thought</label>
-      <textarea class="form-control" id="form4Example3" placeholder="Thought" name="thought" rows="4"></textarea>
+      <textarea class="form-control" id="form4Example3" placeholder="Thought" name="thought" rows="4"><%=thought%></textarea>
     </div>
   
   
