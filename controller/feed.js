@@ -103,6 +103,8 @@ export const getThoughts = async (req, res, next) => {
 
                 // return { title: title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl: imageUrl, creatorId: creatorId };
 
+                const isFollowing = thought.creator.followers.includes(currentUserId);
+
                 let imageUrl = thought.creator.imageUrl;
                 let imagePath = '';
 
@@ -120,7 +122,7 @@ export const getThoughts = async (req, res, next) => {
                     imagePath = path.join(__dirname, '../', imageUrl);
                 }
 
-                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId };
+                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing };
 
             });
 
@@ -177,7 +179,7 @@ export const myThoughts = async (req, res, next) => {
 export const followUser = async (req, res, next) => {
     const { thoughtId } = req.body;
     const userId = req.user._id.toString();
-    
+
     try {
         // Find the thought by ID
         const thought = await Post.findById(thoughtId);
@@ -203,10 +205,56 @@ export const followUser = async (req, res, next) => {
         }
 
         // Redirect the user back to the previous page
-        res.redirect('back');
+        res.redirect('/feed/thoughts');
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'An error occurred' });
     }
 };
 
+export const shareThought = async (req, res, next) => {
+    const thoughtId = req.params.thoughtId;
+
+    try {
+        // Retrieve the thought by ID
+        const thought = await Post.findById(thoughtId);
+
+        if (!thought) {
+            return res.status(404).json({ message: 'Thought not found' });
+        }
+
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+
+        const title = thought.title;
+        const th = thought.thought;
+        
+        const creatorName = thought.creator.name;
+
+
+        let imageUrl = thought.creator.imageUrl;
+        let imagePath = '';
+
+        if (imageUrl) {
+            const updatedImageUrl = imageUrl.replace(/\\/g, '/');
+            imagePath = path.join(__dirname, '../', updatedImageUrl);
+
+            if (!fs.existsSync(imagePath)) {
+                // Image file does not exist, replace with another image
+                imageUrl = 'images/th.jpeg';
+                imagePath = path.join(__dirname, '../', imageUrl);
+            }
+        } else {
+            imageUrl = 'images/th.jpeg';
+            imagePath = path.join(__dirname, '../', imageUrl);
+        }
+
+        // Implement the logic to share the thought (e.g., send an email, generate a share link, etc.)
+        // Add your custom logic here
+
+        res.status(200).render('posts/sharedThought',{pageTitle:'Shared Thought',imageUrl, creator:creatorName,title,thought:th, isAuth:false});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'An error occurred' });
+    }
+};

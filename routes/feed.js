@@ -1,5 +1,5 @@
 import express from "express";
-import { postCreateThought, getCreateThought, getThoughts, getHome, myThoughts, followUser} from "../controller/feed.js";
+import { postCreateThought, getCreateThought, getThoughts, getHome, myThoughts, followUser, shareThought} from "../controller/feed.js";
 import {isAuth} from '../middleware/is-auth.js';
 import { body } from 'express-validator'
 
@@ -21,6 +21,8 @@ router.post('/postThought',isAuth, [
 router.get('/mythoughts',isAuth,myThoughts);
 
 router.post('/follow',followUser);
+
+router.get('/share/:thoughtId',shareThought);
 
 
 export default router;

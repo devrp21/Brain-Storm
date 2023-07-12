@@ -30,8 +30,8 @@ export const getUserProfile = async (req, res, next) => {
             }
         }
 
-        console.log(thoughts);
-        res.render('user-profile', { pageTitle: 'User Profile', username, thoughts });
+        // console.log(thoughts);
+        res.render('posts/mythoughts', { pageTitle: `${username} Profile`, username, mythoughts: thoughts, visitor: true, isAuth: true });
     } catch (err) {
         next(err);
     }
@@ -95,7 +95,7 @@ export const getMyProfile = (req, res, next) => {
     const email = req.user.email;
     const followers = req.user.followers.length;
     const following = req.user.following.length;
-    const thoughts=req.user.thoughts.length;
+    const thoughts = req.user.thoughts.length;
     var imageUrl = req.user.imageUrl;
 
 
@@ -116,7 +116,7 @@ export const getMyProfile = (req, res, next) => {
             email: email,
             followers: followers,
             following: following,
-            thoughts:thoughts
+            thoughts: thoughts
         });
     });
 

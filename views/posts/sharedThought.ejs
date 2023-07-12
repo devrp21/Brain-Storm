@@ -177,72 +177,36 @@
   <%- include('../includes/head.ejs')%>
     <%- include('../includes/navbar.ejs')%>
 
-      <% if (isAuth) { %>
+      
         <div class="main-container">
-          <div class="heading">
-            <h1 class="heading__title"></h1>
-            <button class="btn btn-outline-light btn-lg px-5" type="button"
-              onclick="window.location.href='/feed/postThought'">Post</button>
-          </div>
+          
           <div class="cards">
-            <% thoughts.forEach(function(th) { %>
+            
               <% let min=1; %>
                 <% let max=5; %>
                   <div class="card card-<%= Math.floor(Math.random() * (7 - 1) + 1); %>">
-                    <% if (th.imageUrl) { %>
+                    <% if (imageUrl) { %>
                       <p class="card__creator">
-                        <%= th.creator %>
+                        <%= creator %>
                       </p>
-                      <a href="/user/profile/<%= th.creator %>">
-                        <img class="card__image" src="<%= th.imageUrl %>" alt="Profile Image">
+                      <a href="/user/profile/<%= creator %>">
+                        <img class="card__image" src="<%= imageUrl %>" alt="Profile Image">
                       </a>
 
                       <% } %>
 
                         <div class="card__title">
-                          <%= th.title %>
+                          <%= title %>
                         </div>
                         <h2 class="card__content">
-                          <%= th.thought %>
+                          <%= thought %>
                         </h2>
-                        <p class="card__creator">
-                          <%= th.createdAt %>
-                        </p>
-                        <a href="/feed/share/<%= th._id %>">Share</a>
-                        <%if(th.creatorId != th.currentUserId && !th.isFollowing){%>
-                        <button class="follow-button" data-thought-id="<%= th._id %>">Follow</button>
-                        <%}%>
+                       
+                        
                   </div>
-                  <% }); %>
           </div>
         </div>
-        <% } %>
-        <script>
-          const followButtons = document.querySelectorAll('.follow-button');
-      
-          followButtons.forEach(button => {
-            button.addEventListener('click', async (event) => {
-              const thoughtId = event.target.dataset.thoughtId;
-              console.log(thoughtId);
-              const response = await fetch('/feed/follow', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ thoughtId })
-              });
-      
-              if (response.ok) {
-                // Handle success, e.g., display a success message or update UI
-                console.log('Successfully followed the thought\'s creator');
-              } else {
-                // Handle error, e.g., display an error message or show an alert
-                console.log('An error occurred while following the thought\'s creator');
-              }
-            });
-          });
-        </script>
-          
+        
 </body>
 
 </html>
