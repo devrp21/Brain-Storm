@@ -7,6 +7,10 @@ const thoughtSchema = new Schema({
         type: String,
         required: true
     },
+    postImage: {
+        type: String,
+        default: undefined
+    },
     thought: {
         type: String,
         required: true
@@ -15,7 +19,11 @@ const thoughtSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Like'
+    }]
 }, {
     timestamps: true
 });

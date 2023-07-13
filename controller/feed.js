@@ -19,15 +19,24 @@ export const getCreateThought = (req, res, next) => {
 // Creating Post
 export const postCreateThought = async (req, res, next) => {
     const title = req.body.title;
+    const image = req.file;
     const thought = req.body.thought;
-
-    const post = new Post({
-        title: title,
-        thought: thought,
-        creator: req.userId
-    });
-
-
+    var post;
+    if (!image) {
+        post = new Post({
+            title: title,
+            thought: thought,
+            creator: req.userId
+        });
+    }
+    else {
+        post = new Post({
+            title: title,
+            postImage: image.path,
+            thought: thought,
+            creator: req.userId
+        });
+    }
 
     try {
         const savedThought = await post.save();
@@ -85,23 +94,13 @@ export const getThoughts = async (req, res, next) => {
                 const options = { day: 'numeric', month: 'long', year: 'numeric' };
                 const formattedDate = createdAt.toLocaleDateString('en-IN', options);
                 const title = thought.title;
+                const postImage=thought.postImage;
                 const th = thought.thought;
                 const _id = thought._id;
                 const creatorId = thought.creator._id;
                 const creatorName = thought.creator.name;
                 const currentUserId = req.userId;
-                // var imageUrl = thought.creator.imageUrl;
-                // console.log(imageUrl);
-                // var im=imageUrl.replace(/\\/g, '/');
-                // console.log(typeof(im));
-
-                // const imagePath = path.join(__dirname, '../', im);
-                // console.log(typeof(imagePath));
-                // if(imageUrl==undefined){
-                //     imageUrl='images/th.jpeg';
-                // }
-
-                // return { title: title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl: imageUrl, creatorId: creatorId };
+                const likes = thought.likes.length;
 
                 const isFollowing = thought.creator.followers.includes(currentUserId);
 
@@ -122,7 +121,7 @@ export const getThoughts = async (req, res, next) => {
                     imagePath = path.join(__dirname, '../', imageUrl);
                 }
 
-                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing };
+                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing, likes,postImage };
 
             });
 
@@ -158,14 +157,16 @@ export const myThoughts = async (req, res, next) => {
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             const formattedDate = createdAt.toLocaleDateString('en-IN', options);
             const title = thought.title;
+            const postImage=thought.postImage
             const th = thought.thought;
             const thoughtId = thought._id; // Get the thought ID
-            return { thoughtId: thoughtId, title: title, thought: th, createdAt: formattedDate };
+            return { thoughtId: thoughtId, title: title, thought: th, createdAt: formattedDate, postImage };
         });
 
         res.render('posts/mythoughts', {
             pageTitle: 'My Thoughts',
             isAuth: true,
+            visitor: false,
             mythoughts: transformedThoughts,
         });
     } catch (err) {
@@ -220,7 +221,9 @@ export const shareThought = async (req, res, next) => {
         const thought = await Post.findById(thoughtId);
 
         if (!thought) {
-            return res.status(404).json({ message: 'Thought not found' });
+            const error = new Error();
+            error.httpStatusCode = 500;
+            return next(error);
         }
 
         const __filename = fileURLToPath(import.meta.url);
@@ -228,10 +231,8 @@ export const shareThought = async (req, res, next) => {
 
         const title = thought.title;
         const th = thought.thought;
-        
-        const creatorName = thought.creator.name;
-
-
+        const creatorId = thought.creator;
+        const creator = await User.findById(creatorId).select('-_id name');
         let imageUrl = thought.creator.imageUrl;
         let imagePath = '';
 
@@ -249,12 +250,75 @@ export const shareThought = async (req, res, next) => {
             imagePath = path.join(__dirname, '../', imageUrl);
         }
 
-        // Implement the logic to share the thought (e.g., send an email, generate a share link, etc.)
-        // Add your custom logic here
-
-        res.status(200).render('posts/sharedThought',{pageTitle:'Shared Thought',imageUrl, creator:creatorName,title,thought:th, isAuth:false});
+        res.status(200).render('posts/sharedThought', { pageTitle: 'Shared Thought', imageUrl, creator: creator.name, title, thought: th, isAuth: false });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'An error occurred' });
+    }
+};
+
+
+export const likeThought = async (req, res, next) => {
+    // const thoughtId = req.body.thoughtId;
+
+    // try {
+    //     // Find the thought in the database
+    //     const thought = await Post.findById(thoughtId);
+
+    //     if (!thought) {
+    //         return res.status(404).json({ error: 'Thought not found' });
+    //     }
+
+    //     // Check if the current user has already liked the thought
+    //     const alreadyLiked = thought.likes.includes(req.user._id);
+
+    //     if (alreadyLiked) {
+    //         // If already liked, remove the user's like
+    //         thought.likes.pull(req.user._id);
+    //     } else {
+    //         // If not liked, add the user's like
+    //         thought.likes.push(req.user._id);
+    //     }
+
+    //     // Save the updated thought in the database
+    //     await thought.save();
+
+    //     res.status(200).json({ message: 'Like updated successfully', thought });
+    // } catch (error) {
+    //     res.status(500).json({ error: 'An error occurred' });
+    // }
+
+    const thoughtId = req.params.thoughtId;
+
+    try {
+        // Find the thought by its ID
+        const thought = await Post.findById(thoughtId);
+
+        if (!thought) {
+            return res.status(404).json({ error: 'Thought not found' });
+        }
+
+        thought.likes = thought.likes || [];
+        // Check if the user has already liked the thought
+        const userId = req.user._id; // Assuming you have the user ID in the request object
+
+        const userLiked = thought.likes.includes(userId);
+
+        // Toggle the like state
+        if (userLiked) {
+            // User already liked the thought, so remove the like
+            thought.likes = thought.likes.filter(like => like !== userId);
+        } else {
+            // User didn't like the thought, so add the like
+            thought.likes.push(userId);
+        }
+
+        // Save the updated thought
+        const updatedThought = await thought.save();
+
+        res.json({ likes: updatedThought.likes.length, userLiked: !userLiked });
+    } catch (error) {
+        console.error('Error toggling like state:', error);
+        res.status(500).json({ error: 'An error occurred while toggling like state' });
     }
 };

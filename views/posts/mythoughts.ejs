@@ -148,6 +148,22 @@ background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%)
 }
 
 
+.card__image-container_post {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card__image_post {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
 /* RESPONSIVE */
 
 @media (max-width: 1600px) {
@@ -177,12 +193,17 @@ background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%)
     <div class="card card-<%=Math.floor(Math.random() * (7 - 1) + 1);%>">
      
       <div class="card__title"><%=th.title%></div>
+      <% if(th.postImage){%>
+        <div class="card__image-container_post">
+          <img class="card__image_post" src="<%= th.postImage %>" alt="Profile Image">
+        </div>
+        <%}%>
       <h2 class="card__content"><%=th.thought%></h2>
       <p class="card__creator">
         <%=th.createdAt%>
       </p>
      <% if(!visitor) {%>
-      <form method="POST" action="/user/deleteThought/<%= th.thoughtId %>">
+      <form method="POST" action="/user/deleteThought/<%= th.thoughtId %>" onsubmit="return confirmDelete(event)">
         <input type="hidden" name="_method" value="DELETE">
         <button type="submit">Delete</button>
       </form>
@@ -197,6 +218,16 @@ background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%)
   </div>
  
 </div>
+
+<script>
+  function confirmDelete(event) {
+  event.preventDefault();
+  const confirmation = confirm("Are you sure you want to delete this post?");
+  if (confirmation) {
+    event.target.submit();
+  }
+}
+</script>
 </body>
 </html>
 

@@ -1,51 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%=pageTitle%></title>
+  <title>
+    <%=pageTitle%>
+  </title>
 </head>
+
 <body style="background: radial-gradient(#000000 0%, #2c3e50 74%);">
   <%- include('../includes/head.ejs')%>
 
-<%- include('../includes/navbar.ejs')%>
-<section class="vh-100 gradient-custom">
-  <div class="container py-5 h-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-        <div class="card bg-dark text-white" style="border-radius: 1rem;">
-          <div class="card-body p-5 text-center">
+    <%- include('../includes/navbar.ejs')%>
+      <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+              <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
 
-            <div class="mb-md-5 mt-md-4 pb-5">
-              <h2 class="fw-bold mb-2 text-uppercase">Write Your Thought</h2>
-              
+                  <div class="mb-md-5 mt-md-4 pb-5">
+                    <h2 class="fw-bold mb-2 text-uppercase">Write Your Thought</h2>
 
-  <%if (errorMessage) {%>
-    <div class="user-message user-message--error">
-        <%=errorMessage%>
-    </div>
-    <% } %>
-  <form method="post" action="/feed/postThought">
-    <!-- Name input -->
-    <div class="form-outline form-white mb-4">
-      <label class="form-label" for="form4Example1">Title</label>
-      <input type="text" id="form4Example1" placeholder="Title" name="title" class="form-control" />
-    </div>
-  
-    <!-- Message input -->
-    <div class="form-outline form-white mb-4">
-      <label class="form-label" for="form4Example3">Thought</label>
-      <textarea class="form-control" id="form4Example3" placeholder="Thought" name="thought" rows="4"></textarea>
-    </div>
-  
-  
-    <!-- Submit button -->
-    <button type="submit" class="btn btn-outline-light btn-lg px-5">
-      Post
-    </button>
-  </form>
- 
 
-  <%- include('../includes/end.ejs')%>
+                    <%if (errorMessage) {%>
+                      <div class="user-message user-message--error">
+                        <%=errorMessage%>
+                      </div>
+                      <% } %>
+                        <form method="post" action="/feed/postThought" enctype="multipart/form-data">
+                          <!-- Name input -->
+                          <div class="form-outline form-white mb-4">
+                            <label class="form-label" for="form4Example1">Title</label>
+                            <input type="text" id="form4Example1" placeholder="Title" name="title"
+                              class="form-control" />
+                          </div>
+
+                          <div class="form-outline form-white mb-4">
+                            <label class="form-label" for="form4Example2">Image</label>
+                            <input type="file" id="form4Example2" name="image" class="form-control" accept="image/*" />
+                          </div>
+
+                          <!-- Message input -->
+                          <div class="form-outline form-white mb-4">
+                            <label class="form-label" for="form4Example3">Thought</label>
+                            <textarea class="form-control" id="form4Example3" placeholder="Thought" name="thought"
+                              rows="4"></textarea>
+                          </div>
+
+
+                          <!-- Submit button -->
+                          <button type="submit" class="btn btn-outline-light btn-lg px-5">
+                            Post
+                          </button>
+                        </form>
+
+
+                        <%- include('../includes/end.ejs')%>
 </body>
+
 </html>

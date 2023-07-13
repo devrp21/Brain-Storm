@@ -40,6 +40,7 @@ export const getUserProfile = async (req, res, next) => {
 
 export const uploadImage = async (req, res, next) => {
     const image = req.file;
+    console.log(image);
     if (!image) {
         res.redirect('/feed/myprofile');
     } else {
@@ -148,9 +149,11 @@ export const editThoughtGet = async (req, res, next) => {
 
         const post = await Post.findById(thoughtId);
         const title = post.title;
+        const postImage = post.postImage;
+        console.log(postImage);
         const thought = post.thought;
 
-        res.render('posts/editYourThought', { pageTitle: "Edit Your Thought", isAuth: true, errorMessage: '', title: title, thought: thought, thoughtId });
+        res.render('posts/editYourThought', { pageTitle: "Edit Your Thought", isAuth: true, errorMessage: '', title: title, thought: thought, thoughtId, postImage });
     } catch (err) {
         next(err);
     }
@@ -160,9 +163,12 @@ export const editThoughtGet = async (req, res, next) => {
 export const editThoughtPost = async (req, res, next) => {
     try {
         const thoughtId = req.params.thoughtId;
+        const postImage = req.file
         const title = req.body.title;
         const thought = req.body.thought;
+
         // Delete thought from the posts collection
+        // if()
         const post = await Post.findByIdAndUpdate(
             thoughtId,
             {

@@ -25,12 +25,19 @@
         <%=errorMessage%>
     </div>
     <% } %>
-  <form method="post" action="/user/editThought/<%=thoughtId%>">
+  <form method="post" action="/user/editThought/<%=thoughtId%>" enctype="multipart/form-data" >
     <!-- Name input -->
     <div class="form-outline form-white mb-4">
       <label class="form-label" for="form4Example1">Title</label>
       <input type="text" id="form4Example1" placeholder="Title" name="title" class="form-control" value="<%=title%>" />
     </div>
+
+    <% if(postImage){%>
+    <div class="form-outline form-white mb-4">
+      <label class="form-label" for="form4Example2">Image</label>
+      <input type="file" id="form4Example2" name="image" class="form-control" accept="image/*"  />
+    </div>
+    <%}%>
   
     <!-- Message input -->
     <div class="form-outline form-white mb-4">

@@ -55,6 +55,7 @@ app.use(express.static(publicPath));
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use('/user/images', express.static(path.join(__dirname, 'images')));
 app.use('/feed/images', express.static(path.join(__dirname, 'images')));
+app.use('/feed/share/images', express.static(path.join(__dirname, 'images')));
 
 app.use(session({
   secret: 'my secret',
