@@ -23,7 +23,12 @@ const thoughtSchema = new Schema({
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Like'
-    }]
+    }],
+    hashtags: [{
+        type: String,
+        trim: true,
+        lowercase: true
+      }],
 }, {
     timestamps: true
 });

@@ -200,19 +200,23 @@
 
 
     .card__image-container_post {
-  width: 200px;
-  height: 200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-.card__image_post {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+    .card__image_post {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .hashtag {
+    color: #506aff; /* You can choose the color for highlighted hashtags */
+  }
 
     @keyframes pulseHeart {
       0% {
@@ -239,6 +243,7 @@
 </head>
 
 <body>
+  
 
   <%- include('../includes/head.ejs')%>
     <%- include('../includes/navbar.ejs')%>
@@ -264,35 +269,41 @@
                       </a>
 
                       <% } %>
-                      
+
 
                         <div class="card__title">
                           <%= th.title %>
                         </div>
                         <% if(th.postImage){%>
                           <div class="card__image-container_post">
-                            <img class="card__image_post" src="<%= th.postImage %>" alt="Profile Image">
+                            <img class="card__image_post" src="<%= th.postImage %>" alt="Post Image">
                           </div>
                           <%}%>
-                        <h2 class="card__content">
-                          <%= th.thought %>
-                        </h2>
-                        <p class="card__creator">
-                          <%= th.createdAt %>
-                        </p>
-                        <a href="#" class="share-link"
-                          data-share-url="localhost:8080/feed/share/<%= th._id %>">Share</a>
-                        <!-- <a href="/feed/share/<%= th._id %>">Share</a> -->
-                        <%if(th.creatorId !=th.currentUserId && !th.isFollowing){%>
-                          <button class="follow-button" data-thought-id="<%= th._id %>">Follow</button>
+                          
+                            <h2 class="card__content">
+                              <%=(th.thought) %>
+                            </h2>
+                            <h2 class="card__content">
+                              <% for (let i = 0; i < th.hashtags.length; i++) { %>
+                                <span class="hashtag">#<%= th.hashtags[i] %></span>
+                              <% } %>
+                            </h2>
+                            <p class="card__creator">
+                              <%= th.createdAt %>
+                            </p>
+                            <a href="#" class="share-link"
+                              data-share-url="localhost:8080/feed/share/<%= th._id %>">Share</a>
+                            <!-- <a href="/feed/share/<%= th._id %>">Share</a> -->
+                            <%if(th.creatorId !=th.currentUserId && !th.isFollowing){%>
+                              <button class="follow-button" data-thought-id="<%= th._id %>">Follow</button>
 
-                          <%}%>
-                            <button class="like-button" data-thought-id="<%= th._id %>">
-                              <i class="fas fa-heart"></i>
-                              <span class="like-count">
-                                <%= th.likes %>
-                              </span>
-                            </button>
+                              <%}%>
+                                <button class="like-button" data-thought-id="<%= th._id %>">
+                                  <i class="fas fa-heart"></i>
+                                  <span class="like-count">
+                                    <%= th.likes %>
+                                  </span>
+                                </button>
                   </div>
                   <% }); %>
           </div>
@@ -378,8 +389,10 @@
               });
             });
 
-
+            
           </script>
+
+          
 
 
 </body>

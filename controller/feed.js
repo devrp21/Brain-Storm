@@ -14,27 +14,43 @@ export const getCreateThought = (req, res, next) => {
         errorMessage: '',
         isAuth: true
     });
-}
+};
+
+function extractHashtagsFromThought(thought) {
+    const regex = /#(\w+)/g;
+    const hashtags = [];
+    let match;
+    while ((match = regex.exec(thought)) !== null) {
+      hashtags.push(match[1]);
+    }
+    return hashtags;
+  }
 
 // Creating Post
 export const postCreateThought = async (req, res, next) => {
     const title = req.body.title;
     const image = req.file;
     const thought = req.body.thought;
+    const hashtags = extractHashtagsFromThought(thought);
+
+    const thoughtWithoutHashtags = thought.replace(/#\w+/g, '').trim();
+
     var post;
     if (!image) {
         post = new Post({
             title: title,
-            thought: thought,
-            creator: req.userId
+            thought: thoughtWithoutHashtags,
+            creator: req.userId,
+            hashtags
         });
     }
     else {
         post = new Post({
             title: title,
             postImage: image.path,
-            thought: thought,
-            creator: req.userId
+            thought: thoughtWithoutHashtags,
+            creator: req.userId,
+            hashtags
         });
     }
 
@@ -94,13 +110,15 @@ export const getThoughts = async (req, res, next) => {
                 const options = { day: 'numeric', month: 'long', year: 'numeric' };
                 const formattedDate = createdAt.toLocaleDateString('en-IN', options);
                 const title = thought.title;
-                const postImage=thought.postImage;
+                const postImage = thought.postImage;
                 const th = thought.thought;
                 const _id = thought._id;
                 const creatorId = thought.creator._id;
                 const creatorName = thought.creator.name;
                 const currentUserId = req.userId;
                 const likes = thought.likes.length;
+                const hashtags =  thought.hashtags;
+            
 
                 const isFollowing = thought.creator.followers.includes(currentUserId);
 
@@ -121,7 +139,7 @@ export const getThoughts = async (req, res, next) => {
                     imagePath = path.join(__dirname, '../', imageUrl);
                 }
 
-                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing, likes,postImage };
+                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing, likes, postImage, hashtags };
 
             });
 
@@ -157,7 +175,7 @@ export const myThoughts = async (req, res, next) => {
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             const formattedDate = createdAt.toLocaleDateString('en-IN', options);
             const title = thought.title;
-            const postImage=thought.postImage
+            const postImage = thought.postImage
             const th = thought.thought;
             const thoughtId = thought._id; // Get the thought ID
             return { thoughtId: thoughtId, title: title, thought: th, createdAt: formattedDate, postImage };
