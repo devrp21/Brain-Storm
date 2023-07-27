@@ -7,7 +7,7 @@ const thoughtSchema = new Schema({
         type: String,
         required: true
     },
-    postImage: {
+    url: {
         type: String,
         default: undefined
     },

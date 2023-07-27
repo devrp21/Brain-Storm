@@ -21,37 +21,101 @@ function extractHashtagsFromThought(thought) {
     const hashtags = [];
     let match;
     while ((match = regex.exec(thought)) !== null) {
-      hashtags.push(match[1]);
+        hashtags.push(match[1]);
     }
     return hashtags;
-  }
+}
 
 // Creating Post
+// export const postCreateThought = async (req, res, next) => {
+//     const title = req.body.title;
+//     const file = req.file;
+//     console.log(file);
+//     const thought = req.body.thought;
+//     const hashtags = extractHashtagsFromThought(thought);
+
+//     const thoughtWithoutHashtags = thought.replace(/#\w+/g, '').trim();
+
+//     var post;
+//     if (!file) {
+//         post = new Post({
+//             title: title,
+//             thought: thoughtWithoutHashtags,
+//             creator: req.userId,
+//             hashtags
+//         });
+//     }
+//     else {
+//         if (file.mimetype.startsWith('image')) {
+//             post = new Post({
+//                 title: title,
+//                 url: file.path,
+//                 thought: thoughtWithoutHashtags,
+//                 creator: req.userId,
+//                 hashtags
+//             });
+//         } else if (file.mimetype.startsWith('video')) {
+//             post = new Post({
+//                 title: title,
+//                 url: file.path,
+//                 thought: thoughtWithoutHashtags,
+//                 creator: req.userId,
+//                 hashtags
+//             });
+//     }
+// }
+
+//     try {
+//         const savedThought = await post.save();
+//         const user = await User.findById(req.userId);
+//         user.thoughts.push(savedThought._id);
+//         await user.save();
+//         res.redirect('/feed/thoughts');
+//     }
+//     catch (err) {
+//         const error = new Error(err);
+//         error.httpStatusCode = 500;
+//         return next(error);
+//     }
+// };
+
+
 export const postCreateThought = async (req, res, next) => {
     const title = req.body.title;
-    const image = req.file;
+    const file = req.file;
     const thought = req.body.thought;
     const hashtags = extractHashtagsFromThought(thought);
 
     const thoughtWithoutHashtags = thought.replace(/#\w+/g, '').trim();
 
     var post;
-    if (!image) {
+    if (!file) {
         post = new Post({
             title: title,
             thought: thoughtWithoutHashtags,
             creator: req.userId,
             hashtags
         });
-    }
-    else {
-        post = new Post({
-            title: title,
-            postImage: image.path,
-            thought: thoughtWithoutHashtags,
-            creator: req.userId,
-            hashtags
-        });
+    } else {
+        if (file.mimetype.startsWith('image')) {
+            post = new Post({
+                title: title,
+                url: file.path,
+                thought: thoughtWithoutHashtags,
+                creator: req.userId,
+                hashtags
+            });
+        } else if (file.mimetype.startsWith('video')) {
+            post = new Post({
+                title: title,
+                url: file.path,
+                thought: thoughtWithoutHashtags,
+                creator: req.userId,
+                hashtags
+            });
+        } else {
+            // Handle unsupported file types here if needed
+        }
     }
 
     try {
@@ -60,8 +124,7 @@ export const postCreateThought = async (req, res, next) => {
         user.thoughts.push(savedThought._id);
         await user.save();
         res.redirect('/feed/thoughts');
-    }
-    catch (err) {
+    } catch (err) {
         const error = new Error(err);
         error.httpStatusCode = 500;
         return next(error);
@@ -110,20 +173,31 @@ export const getThoughts = async (req, res, next) => {
                 const options = { day: 'numeric', month: 'long', year: 'numeric' };
                 const formattedDate = createdAt.toLocaleDateString('en-IN', options);
                 const title = thought.title;
-                const postImage = thought.postImage;
+                const url = thought.url;
                 const th = thought.thought;
                 const _id = thought._id;
                 const creatorId = thought.creator._id;
                 const creatorName = thought.creator.name;
                 const currentUserId = req.userId;
                 const likes = thought.likes.length;
-                const hashtags =  thought.hashtags;
-            
+                const hashtags = thought.hashtags;
+
 
                 const isFollowing = thought.creator.followers.includes(currentUserId);
 
                 let imageUrl = thought.creator.imageUrl;
                 let imagePath = '';
+                let videoUrl = '';
+                let imgUrl = ''
+
+                if (url && url.endsWith('.mp4')) {
+                    // Post contains a video
+                    videoUrl = url;
+                    imgUrl = null;
+                } else {
+                    imgUrl = url;
+                    videoUrl = null;
+                }
 
                 if (imageUrl) {
                     const updatedImageUrl = imageUrl.replace(/\\/g, '/');
@@ -139,7 +213,7 @@ export const getThoughts = async (req, res, next) => {
                     imagePath = path.join(__dirname, '../', imageUrl);
                 }
 
-                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing, likes, postImage, hashtags };
+                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing, likes, imgUrl, videoUrl, hashtags };
 
             });
 
@@ -175,10 +249,24 @@ export const myThoughts = async (req, res, next) => {
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             const formattedDate = createdAt.toLocaleDateString('en-IN', options);
             const title = thought.title;
-            const postImage = thought.postImage
+            const url = thought.url
             const th = thought.thought;
             const thoughtId = thought._id; // Get the thought ID
-            return { thoughtId: thoughtId, title: title, thought: th, createdAt: formattedDate, postImage };
+            const hashtags = thought.hashtags
+
+            let videoUrl = '';
+            let imgUrl = ''
+
+            if (url && url.endsWith('.mp4')) {
+                // Post contains a video
+                videoUrl = url;
+                imgUrl = null;
+            } else {
+                imgUrl = url;
+                videoUrl = null;
+            }
+
+            return { thoughtId: thoughtId, title: title, thought: th, createdAt: formattedDate, imgUrl, videoUrl, hashtags };
         });
 
         res.render('posts/mythoughts', {
@@ -340,3 +428,215 @@ export const likeThought = async (req, res, next) => {
         res.status(500).json({ error: 'An error occurred while toggling like state' });
     }
 };
+
+
+export const getRelatedThoughts = async (req, res, next) => {
+
+    if (req.session.isLoggedIn == false || req.session.isLoggedIn == undefined) {
+        return res.redirect('/');
+    }
+    else {
+        try {
+            const hashtag = req.params.hashtag; // Extract the hashtag from the query parameter
+            const relatedPosts = await Post.find({ hashtags: hashtag })
+            .populate('creator') // Populate the 'creator' field
+            .sort({ createdAt: -1 })
+            .exec();
+            
+            const transformedThoughts = relatedPosts.map(thought => {
+                const __filename = fileURLToPath(import.meta.url);
+                const __dirname = path.dirname(__filename);
+
+                const createdAt = new Date(thought.createdAt);
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                const formattedDate = createdAt.toLocaleDateString('en-IN', options);
+                const title = thought.title;
+                const url = thought.url;
+                const th = thought.thought;
+                const _id = thought._id;
+                const creatorId = thought.creator._id;
+                const creatorName = thought.creator.name;
+                const currentUserId = req.userId;
+                const likes = thought.likes.length;
+                const hashtags = thought.hashtags;
+
+
+                const isFollowing = Array.isArray(thought.creator.followers) && thought.creator.followers.includes(currentUserId);
+
+
+                let imageUrl = thought.creator.imageUrl;
+                let imagePath = '';
+                let videoUrl = '';
+                let imgUrl = ''
+
+                if (url && url.endsWith('.mp4')) {
+                    // Post contains a video
+                    videoUrl = url;
+                    imgUrl = null;
+                } else {
+                    imgUrl = url;
+                    videoUrl = null;
+                }
+
+                if (imageUrl) {
+                    const updatedImageUrl = imageUrl.replace(/\\/g, '/');
+                    imagePath = path.join(__dirname, '../', updatedImageUrl);
+
+                    if (!fs.existsSync(imagePath)) {
+                        // Image file does not exist, replace with another image
+                        imageUrl = 'images/th.jpeg';
+                        imagePath = path.join(__dirname, '../', imageUrl);
+                    }
+                } else {
+                    imageUrl = 'images/th.jpeg';
+                    imagePath = path.join(__dirname, '../', imageUrl);
+                }
+
+                return { _id, title, thought: th, createdAt: formattedDate, creator: creatorName, imageUrl, creatorId: creatorId, currentUserId, isFollowing, likes, imgUrl, videoUrl, hashtags };
+
+            });
+
+
+            res.status(200).render('posts/relatedThought', {
+                pageTitle: "Thoughts",
+                thoughts: transformedThoughts,
+                errorMessage: '',
+                isAuth: true
+            });
+        }
+        catch (err) {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        }
+    }
+
+};
+
+// Step 3: Count hashtag occurrences
+
+// function countHashtags(thoughts) {
+//     const hashtagCountMap = new Map();
+
+//     thoughts.forEach((thought) => {
+//         thought.hashtags.forEach((hashtag) => {
+//             hashtagCountMap.set(hashtag, (hashtagCountMap.get(hashtag) || 0) + 1);
+//         });
+//     });
+
+//     return hashtagCountMap;
+// }
+
+// export const getTrendingThoughts = async (req, res, next) => {
+//     try {
+//         const today = new Date();
+//         today.setHours(0, 0, 0, 0); // Set time to the beginning of the day
+//         const thoughts = await Post.find({ createdAt: { $gte: today } }).exec();
+//         console.log(thoughts);
+
+//         // Step 2: Extract hashtags from thoughts
+//         thoughts.forEach((thought) => {
+//             thought.hashtags = extractHashtagsFromThought(thought.thought);
+//         });
+
+//         // Step 3: Count hashtag occurrences
+//         const hashtagCountMap = countHashtags(thoughts);
+//         console.log(hashtagCountMap);
+
+//         // Step 4: Sort hashtags by occurrence
+//         const sortedHashtags = [...hashtagCountMap.entries()].sort((a, b) => b[1] - a[1]);
+//         console.log(sortedHashtags);
+
+//         // Step 5: Return top N hashtags used today
+//         const N = 10; // You can change N to get more or fewer trending hashtags
+//         const trendingHashtags = sortedHashtags.slice(0, N).map((entry) => entry[0]);
+
+//         res.status(200).json({ trendingHashtags });
+//     } catch (err) {
+//         next(err);
+//     }
+// };
+
+
+// export const getTrendingThoughts = async (req, res, next) => {
+//     try {
+//       const today = new Date();
+//       today.setHours(0, 0, 0, 0); // Set the time to the beginning of today
+  
+//       // Fetch all thoughts posted today
+//       const thoughtsToday = await Post.find({ createdAt: { $gte: today } }).exec();
+//   console.log(thoughtsToday);
+//       // Create a map to store hashtags and their occurrences
+//       const hashtagMap = new Map();
+  
+//       // Loop through each thought and extract hashtags
+//       thoughtsToday.forEach((thought) => {
+//         console.log('hell'+thought+'hell');
+//         const hashtags = extractHashtagsFromThought(thought.hashtags);
+//         console.log('h'+hashtags+'h');
+//         hashtags.forEach((tag) => {
+//             console.log('tag'+tag+'tag');
+//           if (hashtagMap.has(tag)) {
+//             // Increment count if the hashtag already exists in the map
+//             hashtagMap.set(tag, hashtagMap.get(tag) + 1);
+//           } else {
+//             // Add the hashtag to the map with a count of 1 if it's not already present
+//             hashtagMap.set(tag, 1);
+//           }
+//         });
+//       });
+
+  
+//       // Sort the map in descending order based on hashtag counts
+//       const sortedHashtags = new Map(
+//         [...hashtagMap.entries()].sort((a, b) => b[1] - a[1])
+//       );
+//       console.log(sortedHashtags);
+  
+//       // Extract the top trending hashtags from the sorted map
+//       const trendingHashtags = [...sortedHashtags.keys()].slice(0, 10); // Change 10 to the desired number of top hashtags you want to display
+//         console.log(trendingHashtags);
+//     //   res.render('trending_hashtags', {
+//     //     pageTitle: 'Trending Hashtags',
+//     //     hashtags: trendingHashtags,
+//     //   });
+//     } catch (err) {
+//       next(err);
+//     }
+//   };
+
+
+
+export const getTrendingThoughts = async (req, res, next) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+  
+      const thoughts = await Post.find({ createdAt: { $gte: today } }).exec();
+  
+      // Count the hashtags from all the thoughts
+      const hashtagCountMap = new Map();
+      thoughts.forEach((thought) => {
+        thought.hashtags.forEach((hashtag) => {
+          if (hashtagCountMap.has(hashtag)) {
+            hashtagCountMap.set(hashtag, hashtagCountMap.get(hashtag) + 1);
+          } else {
+            hashtagCountMap.set(hashtag, 1);
+          }
+        });
+      });
+  
+      // Sort the hashtags by count in descending order
+      const sortedHashtags = [...hashtagCountMap.entries()].sort((a, b) => b[1] - a[1]);
+  
+      // Get the top N trending hashtags (e.g., top 10)
+      const topTrendingHashtags = sortedHashtags.slice(0, 10).map((entry) => entry[0]);
+  
+      res.status(200).json({ trendingHashtags: topTrendingHashtags });
+    } catch (err) {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    }
+  };
+  

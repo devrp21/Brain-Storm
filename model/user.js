@@ -30,7 +30,11 @@ const userSchema = new Schema({
     following: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }]
+    }],
+    private:{
+        type:Boolean,
+        default:true
+    }
 });
 
 const User = mongoose.model('User', userSchema);

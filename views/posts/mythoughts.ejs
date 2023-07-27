@@ -193,15 +193,36 @@ background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%)
     <div class="card card-<%=Math.floor(Math.random() * (7 - 1) + 1);%>">
      
       <div class="card__title"><%=th.title%></div>
-      <% if(th.postImage){%>
+      <!-- <% if(th.url){%>
         <div class="card__image-container_post">
-          <img class="card__image_post" src="<%= th.postImage %>" alt="Profile Image">
+          <img class="card__image_post" src="<%= th.url %>" alt="Profile Image">
         </div>
-        <%}%>
+        <%}%> -->
+
+        <% if(th.videoUrl){%>
+          <div class="card__image-container_post">
+            <!-- <img class="card__image_post" src="<%= th.postImage %>" alt="Post Image"> -->
+            <video class="card__video" controls>
+              <source src="<%= th.videoUrl %>" type="video/mp4">
+              <!-- Add other video format sources if necessary -->
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <%}%>
+
+          <% if(th.imgUrl){%>
+            <div class="card__image-container_post">
+              <img class="card__image_post" src="<%= th.imgUrl %>" alt="Post Image">
+
+            </div>
+            <%}%>
       <h2 class="card__content"><%=th.thought%></h2>
       <p class="card__creator">
         <%=th.createdAt%>
       </p>
+      <% for (let i = 0; i < th.hashtags.length; i++) { %>
+        <span class="hashtag">#<%= th.hashtags[i] %></span>
+      <% } %>
      <% if(!visitor) {%>
       <form method="POST" action="/user/deleteThought/<%= th.thoughtId %>" onsubmit="return confirmDelete(event)">
         <input type="hidden" name="_method" value="DELETE">

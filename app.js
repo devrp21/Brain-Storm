@@ -26,25 +26,50 @@ const viewsPath = path.join(__dirname, "./views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+// const fileStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'images');
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Math.random().toFixed(10) + '-' + file.originalname)
+//   },
+// });
+
+// const fileFilter = (req, file, cb) => {
+//   if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype==='video/mp4') {
+//     cb(null, true);
+//   } else {
+//     cb(null, false);
+//   }
+// };
+
+// app.set("view engine", "ejs");
+// app.set("views", viewsPath);
+
+
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images');
+    if (file.mimetype.startsWith('video')) {
+      cb(null, 'videos'); // Save video files in the 'videos' folder
+    } else {
+      cb(null, 'images'); // Save image files in the 'images' folder
+    }
   },
   filename: (req, file, cb) => {
-    cb(null, Math.random().toFixed(10) + '-' + file.originalname)
-  }
+    cb(null, Math.random().toFixed(10) + '-' + file.originalname);
+  },
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype === 'video/mp4') {
     cb(null, true);
   } else {
     cb(null, false);
   }
 };
 
-app.set("view engine", "ejs");
-app.set("views", viewsPath);
+app.set('view engine', 'ejs');
+app.set('views', viewsPath);
 
 app.use(function (req, res, next) {
   res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -53,9 +78,18 @@ app.use(function (req, res, next) {
 
 app.use(express.static(publicPath));
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
+// app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('video'));
 app.use('/user/images', express.static(path.join(__dirname, 'images')));
+app.use('/user/profile/images', express.static(path.join(__dirname, 'images')));
 app.use('/feed/images', express.static(path.join(__dirname, 'images')));
+app.use('/feed/related/images', express.static(path.join(__dirname, 'images')));
 app.use('/feed/share/images', express.static(path.join(__dirname, 'images')));
+app.use('/user/videos', express.static(path.join(__dirname, 'videos')));
+app.use('/user/profile/videos', express.static(path.join(__dirname, 'videos')));
+app.use('/feed/videos', express.static(path.join(__dirname, 'videos')));
+app.use('/feed/related/videos', express.static(path.join(__dirname, 'videos')));
+app.use('/feed/share/videos', express.static(path.join(__dirname, 'videos')));
+
 
 app.use(session({
   secret: 'my secret',

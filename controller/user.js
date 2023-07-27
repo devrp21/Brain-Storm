@@ -13,34 +13,69 @@ export const getUserProfile = async (req, res, next) => {
         const username = req.params.userName;
         // Find the user based on the username
         const user = await User.findOne({ name: username }).exec();
-
-        if (!user) {
-            // Handle case when user is not found
-            return res.status(404).render('user-not-found', { pageTitle: 'User Not Found' });
+        if (user._id == req.userId) {
+            res.redirect('/feed/mythoughts');
         }
+        else {
 
-        const thoughtIds = user.thoughts; // Assuming user.thoughts is an array of thought IDs
-        const thoughts = [];
 
-        // Fetch each thought from the post collection based on the thought IDs
-        for (const thoughtId of thoughtIds) {
-            const thought = await Post.findById(thoughtId).exec();
-            if (thought) {
-                thoughts.push(thought);
+            if (!user) {
+                // Handle case when user is not found
+                return res.status(404).render('user-not-found', { pageTitle: 'User Not Found' });
             }
-        }
 
-        // console.log(thoughts);
-        res.render('posts/mythoughts', { pageTitle: `${username} Profile`, username, mythoughts: thoughts, visitor: true, isAuth: true });
-    } catch (err) {
-        next(err);
-    }
+            const thoughtIds = user.thoughts; // Assuming user.thoughts is an array of thought IDs
+            const thoughts = [];
+
+            // Fetch each thought from the post collection based on the thought IDs
+            for (const thoughtId of thoughtIds) {
+                const thought = await Post.findById(thoughtId).exec();
+                if (thought) {
+                    // thoughts.push(thought);
+                    let imgUrl;
+                    let videoUrl;
+
+                    if (thought.url && thought.url.endsWith('.mp4')) {
+                        // Post contains a video
+                        videoUrl = thought.url;
+                        imgUrl = null; // Replace with a default video thumbnail image URL
+                    } else {
+                        // Post contains an image
+                        imgUrl = thought.url;
+                        videoUrl = null; // Replace with a default image URL if imageUrl is not available
+                    }
+
+                    const transformedThought = {
+                        _id: thought._id,
+                        title: thought.title,
+                        thought: thought.thought,
+                        createdAt: new Date(thought.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+                        creator: thought.creator.name,
+                        creatorId: thought.creator._id,
+                        currentUserId: req.userId, // Assuming you have req.userId available
+                        likes: thought.likes.length,
+                        videoUrl,
+                        imgUrl,
+                        hashtags: thought.hashtags
+                    };
+
+                    thoughts.push(transformedThought);
+
+                }
+            }
+
+            // console.log(thoughts);
+            res.render('posts/mythoughts', { pageTitle: `${username} Profile`, username, mythoughts: thoughts, visitor: true, isAuth: true });
+        }
+        } catch (err) {
+            next(err);
+        }
+    
 };
 
 
 export const uploadImage = async (req, res, next) => {
     const image = req.file;
-    console.log(image);
     if (!image) {
         res.redirect('/feed/myprofile');
     } else {
@@ -149,35 +184,110 @@ export const editThoughtGet = async (req, res, next) => {
 
         const post = await Post.findById(thoughtId);
         const title = post.title;
-        const postImage = post.postImage;
-        console.log(postImage);
+        const url = post.url;
         const thought = post.thought;
 
-        res.render('posts/editYourThought', { pageTitle: "Edit Your Thought", isAuth: true, errorMessage: '', title: title, thought: thought, thoughtId, postImage });
+        res.render('posts/editYourThought', { pageTitle: "Edit Your Thought", isAuth: true, errorMessage: '', title: title, thought: thought, thoughtId, url });
     } catch (err) {
         next(err);
     }
 };
 
+function extractHashtagsFromThought(thought) {
+    const regex = /#(\w+)/g;
+    const hashtags = [];
+    let match;
+    while ((match = regex.exec(thought)) !== null) {
+        hashtags.push(match[1]);
+    }
+    return hashtags;
+}
 
 export const editThoughtPost = async (req, res, next) => {
     try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
         const thoughtId = req.params.thoughtId;
-        const postImage = req.file
+        // const url = req.file
         const title = req.body.title;
         const thought = req.body.thought;
+        const hashtags = extractHashtagsFromThought(thought);
+        const thoughtWithoutHashtags = thought.replace(/#\w+/g, '').trim();
 
         // Delete thought from the posts collection
         // if()
+        // const post = await Post.findByIdAndUpdate(
+        //     thoughtId,
+        //     {
+        //         title: title,
+        //         thought: thought,
+        //         updatedAt: new Date()
+        //     },
+        //     { new: true });
+
+
+        // res.redirect('/feed/mythoughts');
+
+
+        let newurl; // Declare url here to access it outside the if block
+        let url;
+        let isUrlChanges = false;
+        let existingHashtags;
+
+        // Check if a file is selected
+        if (req.file) {
+            newurl = req.file.path;
+            isUrlChanges = true;
+            if (isUrlChanges) {
+                const existingPost = await Post.findById(thoughtId);
+                if (existingPost) {
+                    url = existingPost.url;
+                }
+                const existingImagePath = path.join(__dirname, '../', url);
+                fs.unlink(existingImagePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting old image:', err);
+                    } else {
+                        console.log('Old image deleted successfully');
+                    }
+                });
+            }
+            url = newurl
+        } else {
+            // If no file is selected, retrieve the current url from the database
+            const existingPost = await Post.findById(thoughtId);
+            if (existingPost) {
+                url = existingPost.url;
+            }
+            existingHashtags = existingPost.hashtags;
+        }
+
+
+
+        // Update the post in the database
         const post = await Post.findByIdAndUpdate(
             thoughtId,
             {
                 title: title,
-                thought: thought,
+                thought: thoughtWithoutHashtags,
+                url: url,
+                hashtags: existingHashtags.concat(hashtags),
                 updatedAt: new Date()
             },
-            { new: true });
+            { new: true }
+        );
 
+        // // If the url is changed, delete the old image from storage
+        // if (isUrlChanges) {
+        //     const existingImagePath = path.join(__dirname, '../', url);
+        //     fs.unlink(existingImagePath, (err) => {
+        //         if (err) {
+        //             console.error('Error deleting old image:', err);
+        //         } else {
+        //             console.log('Old image deleted successfully');
+        //         }
+        //     });
+        // }
 
         res.redirect('/feed/mythoughts');
     } catch (err) {
