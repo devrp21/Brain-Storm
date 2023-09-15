@@ -216,6 +216,9 @@ background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%)
 
             </div>
             <%}%>
+            <%if(th.location){%>
+              <div class="card__title"><%=th.location%></div>
+            <%}%>
       <h2 class="card__content"><%=th.thought%></h2>
       <p class="card__creator">
         <%=th.createdAt%>
@@ -223,6 +226,17 @@ background-image: linear-gradient(319deg, #98ce00 0%, #e5f77d 37%, #dc9e82 100%)
       <% for (let i = 0; i < th.hashtags.length; i++) { %>
         <span class="hashtag">#<%= th.hashtags[i] %></span>
       <% } %>
+      <div class="comment-section">
+        <h3>Comments:</h3>
+        <ul>
+          <% th.comments.forEach(function (comment) { %>
+            <li><strong><%= comment.user %>:</strong> <%= comment.comment %></li>
+              <form action="/feed/deleteCommentAdmin/<%= th.thoughtId %>/<%= comment.cid %>" method="POST">
+                <button type="submit" class="delete-btn">Delete</button>
+              </form>
+          <% }); %>
+            </ul>
+      </div>
      <% if(!visitor) {%>
       <form method="POST" action="/user/deleteThought/<%= th.thoughtId %>" onsubmit="return confirmDelete(event)">
         <input type="hidden" name="_method" value="DELETE">

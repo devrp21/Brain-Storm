@@ -7,6 +7,43 @@
   <title>
     <%=pageTitle%>
   </title>
+  <style>
+    .location-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .location-dropdown input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      color: black; /* Set text color to black */
+    }
+
+    .location-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      z-index: 1;
+      color: black; /* Set text color of suggestions to black */
+    }
+
+    .location-suggestions li {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .location-suggestions li:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
 </head>
 
 <body style="background: radial-gradient(#000000 0%, #2c3e50 74%);">
@@ -42,6 +79,14 @@
                             <input type="file" id="form4Example2" name="image" class="form-control" accept="video/*" />
                           </div>
 
+                          <div class="form-outline form-white mb-4 location-dropdown">
+                            <label class="form-label" for="locationInput">Location</label>
+                            <input type="text" name="location" id="locationInput" placeholder="Location" class="form-control" />
+                            <ul class="location-suggestions" id="locationSuggestions"></ul>
+                          </div>
+
+
+
                           <!-- Message input -->
                           <div class="form-outline form-white mb-4">
                             <label class="form-label" for="form4Example3">Thought</label>
@@ -58,6 +103,50 @@
 
 
                         <%- include('../includes/end.ejs')%>
+
+                          <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+                          <script>
+                            async function getLocationSuggestions(query) {
+                              const apiKey = '082a1f35ec974667860de9a433753ff7ss'; // Replace with your actual API key
+                              const url = `https://api.opencagedata.com/geocode/v1/json?q=${query}&key=082a1f35ec974667860de9a433753ff7`;
+
+                              try {
+                                const response = await axios.get(url);
+                                return response.data;
+                              } catch (error) {
+                                console.error('Error making API request:', error.message);
+                                throw error;
+                              }
+                            }
+
+                            function displayLocationSuggestions() {
+                              const locationInput = document.getElementById('locationInput');
+                              const suggestionsContainer = document.getElementById('locationSuggestions');
+                              const query = locationInput.value;
+
+                              getLocationSuggestions(query)
+                                .then(data => {
+                                  const suggestions = data.results;
+                                  suggestionsContainer.innerHTML = '';
+
+                                  if (suggestions.length > 0) {
+                                    for (const suggestion of suggestions) {
+                                      const li = document.createElement('li');
+                                      li.textContent = suggestion.formatted;
+                                      li.addEventListener('click', () => {
+                                        locationInput.value = suggestion.formatted;
+                                        suggestionsContainer.innerHTML = '';
+                                      });
+                                      suggestionsContainer.appendChild(li);
+                                    }
+                                  }
+                                }).catch(error => {
+                                  console.error(error);
+                                });
+                            }
+
+                            document.getElementById('locationInput').addEventListener('input', displayLocationSuggestions);
+                          </script>
 </body>
 
 </html>

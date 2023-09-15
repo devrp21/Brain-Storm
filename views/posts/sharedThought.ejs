@@ -198,6 +198,11 @@
                         <div class="card__title">
                           <%= title %>
                         </div>
+                        <% if(postImage){%>
+                          <div>
+                            <img style="width: 500px; height:300px;" src="<%=postImage %>" alt="Post Image">
+                          </div>
+                          <%}%>
                         <h2 class="card__content">
                           <%= thought %>
                         </h2>

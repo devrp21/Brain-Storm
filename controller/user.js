@@ -67,10 +67,10 @@ export const getUserProfile = async (req, res, next) => {
             // console.log(thoughts);
             res.render('posts/mythoughts', { pageTitle: `${username} Profile`, username, mythoughts: thoughts, visitor: true, isAuth: true });
         }
-        } catch (err) {
-            next(err);
-        }
-    
+    } catch (err) {
+        next(err);
+    }
+
 };
 
 
@@ -186,8 +186,9 @@ export const editThoughtGet = async (req, res, next) => {
         const title = post.title;
         const url = post.url;
         const thought = post.thought;
+        const location=post.location;
 
-        res.render('posts/editYourThought', { pageTitle: "Edit Your Thought", isAuth: true, errorMessage: '', title: title, thought: thought, thoughtId, url });
+        res.render('posts/editYourThought', { pageTitle: "Edit Your Thought", isAuth: true, errorMessage: '', title: title, thought: thought, thoughtId, url,location });
     } catch (err) {
         next(err);
     }
@@ -208,31 +209,20 @@ export const editThoughtPost = async (req, res, next) => {
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
         const thoughtId = req.params.thoughtId;
+        let location=req.body.location;
+        let oldLocation;
         // const url = req.file
         const title = req.body.title;
         const thought = req.body.thought;
+
         const hashtags = extractHashtagsFromThought(thought);
         const thoughtWithoutHashtags = thought.replace(/#\w+/g, '').trim();
-
-        // Delete thought from the posts collection
-        // if()
-        // const post = await Post.findByIdAndUpdate(
-        //     thoughtId,
-        //     {
-        //         title: title,
-        //         thought: thought,
-        //         updatedAt: new Date()
-        //     },
-        //     { new: true });
-
-
-        // res.redirect('/feed/mythoughts');
 
 
         let newurl; // Declare url here to access it outside the if block
         let url;
         let isUrlChanges = false;
-        let existingHashtags;
+        let existingHashtags = [];
 
         // Check if a file is selected
         if (req.file) {
@@ -240,6 +230,7 @@ export const editThoughtPost = async (req, res, next) => {
             isUrlChanges = true;
             if (isUrlChanges) {
                 const existingPost = await Post.findById(thoughtId);
+                oldLocation=existingPost.location;
                 if (existingPost) {
                     url = existingPost.url;
                 }
@@ -251,18 +242,32 @@ export const editThoughtPost = async (req, res, next) => {
                         console.log('Old image deleted successfully');
                     }
                 });
+                existingHashtags=existingPost.hashtags;
             }
             url = newurl
         } else {
             // If no file is selected, retrieve the current url from the database
             const existingPost = await Post.findById(thoughtId);
+            oldLocation=existingPost.location;
             if (existingPost) {
                 url = existingPost.url;
+                existingHashtags = existingPost.hashtags;
+
             }
-            existingHashtags = existingPost.hashtags;
+            // const editedHashtags = extractHashtagsFromThought(thoughtWithoutHashtags);
+            // console.log(editedHashtags);
+            if (hashtags.length > 0) {
+                existingHashtags = existingHashtags.concat(hashtags);
+
+            }
         }
 
-
+        if(oldLocation==location){
+            location=oldLocation
+        }
+        else{
+            location=location
+        }
 
         // Update the post in the database
         const post = await Post.findByIdAndUpdate(
@@ -271,7 +276,8 @@ export const editThoughtPost = async (req, res, next) => {
                 title: title,
                 thought: thoughtWithoutHashtags,
                 url: url,
-                hashtags: existingHashtags.concat(hashtags),
+                location,
+                hashtags: existingHashtags,
                 updatedAt: new Date()
             },
             { new: true }
